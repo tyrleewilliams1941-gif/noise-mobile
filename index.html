@@ -283,10 +283,10 @@ textarea{resize:none;min-height:72px;}
       <button id="ptSearchClear" onclick="clearPtSearch()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;color:var(--txd);font-size:18px;line-height:1;">&#10005;</button>
     </div>
     <div id="ptFilterRow" style="display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;">
-      <button class="pf-btn on" onclick="setPtFilter('all')">All</button>
-      <button class="pf-btn" onclick="setPtFilter('missing')">Missing</button>
-      <button class="pf-btn" onclick="setPtFilter('pinned')">Pinned</button>
-      <button class="pf-btn" onclick="setPtFilter('unpinned')">No Pin</button>
+      <button class="pf-btn on" data-f="all" onclick="setPtFilter('all')">All</button>
+      <button class="pf-btn" data-f="missing" onclick="setPtFilter('missing')">&#9888; Missing</button>
+      <button class="pf-btn" data-f="pinned" onclick="setPtFilter('pinned')">&#128205; Pinned</button>
+      <button class="pf-btn" data-f="unpinned" onclick="setPtFilter('unpinned')">&#9711; No Pin</button>
     </div>
   </div>
   <div id="ptList"></div>
@@ -483,23 +483,29 @@ function renderPtList(){
     var dbStr=pt.db!==''?pt.db+' dB':'--';
     var pkStr=pt.peak!==''?pt.peak+' pk':'';
     var hasPin=pt.pinX!==null;var isSel=pt.id===curPId;
-    return '<div class="pt-item'+(isSel?' sel':'')+'" onclick="selPt('+pt.id+')">'
-      +'<div class="pt-num" style="background:'+col+'22;border:2px solid '+col+';color:'+col+'">'+String(pt.id).padStart(3,'0')+'</div>'
-      +'<div style="flex:1;min-width:0">'
-        +'<div style="display:flex;align-items:baseline;gap:8px">'
-          +'<span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--tx)">'+dbStr+'</span>'
-          +(pkStr?'<span style="font-family:var(--mono);font-size:11px;color:var(--txd)">'+pkStr+'</span>':'')
+    return '<div class="pt-item'+(isSel?' sel':'')+'" onclick="selPt('+pt.id+')" style="flex-direction:column;align-items:stretch;gap:10px;padding:14px 16px">'
+      +'<div style="display:flex;align-items:center;gap:12px">'
+        +'<div class="pt-num" style="background:'+col+'22;border:2px solid '+col+';color:'+col+';flex-shrink:0">'+String(pt.id).padStart(3,'0')+'</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="display:flex;align-items:baseline;gap:8px">'
+            +'<span style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--tx)">'+dbStr+'</span>'
+            +(pkStr?'<span style="font-family:var(--mono);font-size:11px;color:var(--txd)">'+pkStr+'</span>':'')
+          +'</div>'
+          +'<div style="font-size:12px;color:var(--txd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px">'
+            +(pt.location||pt.notes||'<span style="color:var(--bd2);font-style:italic">No location</span>')
+          +'</div>'
         +'</div>'
-        +'<div style="font-size:12px;color:var(--txd);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px">'
-          +(pt.location||pt.notes||'<span style="color:var(--bd2);font-style:italic">No location</span>')
-        +'</div>'
+        +'<span class="badge '+lv.cls+'" style="flex-shrink:0">'+lv.label+'</span>'
       +'</div>'
-      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">'
-        +'<span class="badge '+lv.cls+'">'+lv.label+'</span>'
-        +(hasPin?'<span style="font-size:10px;color:var(--ac);font-family:var(--mono)">&#128205; pinned</span>':'<span style="font-size:10px;color:var(--bd2);font-family:var(--mono)">no pin</span>')
-      +'<button onclick="plotPt('+pt.id+',event)" style="margin-top:4px;font-family:var(--mono);font-size:10px;font-weight:600;padding:5px 10px;border-radius:6px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);cursor:pointer;white-space:nowrap">'
-      +(hasPin?'&#128205; Replot':'&#128205; Plot')
-      +'</button>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<div style="flex:1;display:flex;align-items:center;gap:6px">'
+          +(hasPin
+            ?'<span style="font-size:11px;color:var(--ac);font-family:var(--mono);font-weight:600">&#128205; Pinned on plan</span>'
+            :'<span style="font-size:11px;color:var(--txd);font-family:var(--mono)">&#9711; No pin placed</span>')
+        +'</div>'
+        +'<button onclick="plotPt('+pt.id+',event)" style="font-family:var(--mono);font-size:11px;font-weight:700;padding:8px 16px;border-radius:8px;background:var(--ac2);color:#fff;border:none;cursor:pointer;white-space:nowrap;letter-spacing:.04em">'
+          +(hasPin?'&#128205; Replot':'&#128205; Plot on Plan')
+        +'</button>'
       +'</div>'
     +'</div>';
   }).join('');
@@ -516,7 +522,9 @@ function clearPtSearch(){
 }
 function setPtFilter(f){
   window._ptFilter=f;
-  document.querySelectorAll('.pf-btn').forEach(function(b,i){b.classList.toggle('on',['all','missing','pinned','unpinned'][i]===f);});
+  document.querySelectorAll('.pf-btn').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-f')===f);
+  });
   renderPtList();
 }
 function renderSummary(){
