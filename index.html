@@ -23,7 +23,7 @@
   --tx:#e6edf3;--txd:#8b949e;--txm:#c9d1d9;
   --danger:#f85149;--warn:#d29922;--ok:#3fb950;
   --mono:"IBM Plex Mono",monospace;--sans:"IBM Plex Sans",sans-serif;
-  --hh:52px;--nh:56px;--r:12px;--rs:8px;
+  --hh:52px;--nh:50px;--r:12px;--rs:8px;
   --sab:env(safe-area-inset-bottom,0px);--sat:env(safe-area-inset-top,0px);
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--sans);}
@@ -32,19 +32,19 @@ input:focus,textarea:focus,select:focus{border-color:var(--ac);}
 input[type=number]{font-family:var(--mono);}
 select{-webkit-appearance:none;appearance:none;}
 button{font-family:var(--sans);cursor:pointer;border:none;outline:none;touch-action:manipulation;}
+textarea{resize:none;min-height:72px;}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:var(--sf3);border-radius:3px;border:none;padding:0;outline:none;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--ac);border:2.5px solid var(--sf);box-shadow:0 1px 6px rgba(0,0,0,.4);cursor:pointer;}
 input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--ac);border:2.5px solid var(--sf);cursor:pointer;}
-textarea{resize:none;min-height:72px;}
 .hidden{display:none!important;}
 #app{display:flex;flex-direction:column;height:100vh;height:100svh;height:100dvh;}
 #hdr{height:calc(var(--hh) + var(--sat));background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:var(--sat) 16px 0;gap:10px;flex-shrink:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.08);}
 #screens{flex:1;overflow:hidden;position:relative;}
-.screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);display:none;padding-bottom:calc(76px + var(--sab));}
+.screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);display:none;padding-bottom:calc(var(--nh) + var(--sab) + 24px);}
 .screen.on{display:block;}
 #sPlan{display:none;flex-direction:column;overflow:hidden;position:absolute;inset:0;}
 #sPlan.on{display:flex;}
-#nav{background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:100;box-shadow:0 -1px 4px rgba(0,0,0,.06);padding-bottom:env(safe-area-inset-bottom,0px);}
+#nav{height:calc(var(--nh) + var(--sab));padding-bottom:var(--sab);background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:100;box-shadow:0 -1px 4px rgba(0,0,0,.06);}
 .nav-ind{position:absolute;top:0;left:0;width:20%;height:3px;background:var(--ac);border-radius:0 0 3px 3px;transition:left .2s;}
 
 .logo{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);flex:1;}
@@ -54,7 +54,7 @@ textarea{resize:none;min-height:72px;}
 .undo-row.on{display:flex;}
 .undo-row button{font-family:var(--mono);font-size:11px;color:var(--ac);background:none;border:1px solid rgba(88,166,255,.4);padding:4px 10px;border-radius:4px;cursor:pointer;}
 .nb{flex:1;height:var(--nh);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:transparent;color:var(--txd);font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .15s;}
-.nb svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.nb svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;}
 .nb.on{color:var(--ac);}
 .sp{padding:16px 16px 0;}
 .flr-wrap{position:relative;margin-bottom:14px;}
@@ -380,9 +380,9 @@ textarea{resize:none;min-height:72px;}
 <div class="overlay" id="delSheet" onclick="closeSheetBg(event,'delSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Delete Point</div><div style="font-size:15px;color:var(--txd);margin-bottom:18px">Delete <strong id="delPtLbl" style="color:var(--tx)"></strong>?</div><div class="sh-actions"><button class="btn btn-s" onclick="closeSheet('delSheet')">Cancel</button><button class="btn btn-d" onclick="doDelPt()">Delete</button></div></div></div>
 <div class="overlay" id="settSheet" onclick="closeSheetBg(event,'settSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Settings</div><div style="display:flex;flex-direction:column;gap:18px">
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Theme</span><button id="themeBtn" onclick="togTheme()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">Light</button></div>
-<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;border-radius:50%;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:28px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(this.value)"></div>
+<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;border-radius:50%;flex-shrink:0;width:44px;height:44px"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:28px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(this.value)"></div>
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
-<div><div style="font-family:var(--mono);font-size:13px;color:var(--tx);margin-bottom:10px">Pin displays</div><div style="display:flex;gap:8px" id="pinDispRow"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">Both</button></div></div>
+<div><div style="font-family:var(--mono);font-size:13px;color:var(--tx);margin-bottom:10px">Pin shows</div><div style="display:flex;gap:8px" id="pinDispRow"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB value</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">Both</button></div></div>
 </div><div style="margin-top:18px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
 <div class="lb" id="lb"><img class="lb-img" id="lbImg"><div class="lb-bar"><button class="lb-btn" onclick="lbPrev()">&#8592;</button><button class="lb-btn del" onclick="lbDel()">&#128465;</button><button class="lb-btn" onclick="lbNext()">&#8594;</button><button class="lb-btn" onclick="closeLB()">&#10005;</button></div><div class="lb-cap" id="lbCap"></div></div>
 
@@ -631,8 +631,7 @@ function updPSPrev(){
   c.style.width='44px';c.style.height='44px';
   var ctx=c.getContext('2d');ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,44,44);
-  // preview pin is always drawn at zoom=1 so base size = gPS, clamped to fit preview
-  var r=Math.max(6,Math.min(gPS,18));
+  var r=Math.max(6,Math.min(gPS,19));
   ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=6;ctx.shadowOffsetY=2;
   ctx.beginPath();ctx.arc(22,22,r+2.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fill();
   ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
@@ -672,13 +671,13 @@ function drawPlan(){
       if(pt.pinX===null||pt.pinY===null)return;
       var sx=pt.pinX*vS+vX, sy=pt.pinY*vS+vY;
       var isA=pt.id===curPId;
-      // Scale pin with zoom so it stays proportional to the plan; clamp so it's always readable
+      // Pin radius scales with zoom so it stays proportional to the plan
       var base=pt.pinSize||gPS;
-      var r=Math.max(10,Math.min(56,Math.round(base*vS*(isA?1.35:1))));
+      var r=Math.max(10,Math.min(58,Math.round(base*vS*(isA?1.35:1))));
       var fill=dbColor(pt.db);
       var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
       var lc=bright?'#111':'#fff';
-      // Drop shadow behind white ring
+      // Shadow + white ring
       ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;
       ctx.beginPath();ctx.arc(sx,sy,r+3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.95)';ctx.fill();
       ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
@@ -686,17 +685,17 @@ function drawPlan(){
       ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
       // Selection ring
       if(isA){ctx.beginPath();ctx.arc(sx,sy,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.stroke();}
-      // Pin face text — what to display
-      var faceStr='';
-      if(pinDisplay==='db'){faceStr=pt.db!==''?pt.db:'--';}
-      else if(pinDisplay==='id'){faceStr=pid3(pt.id);}
-      else{faceStr=pt.db!==''?pt.db:pid3(pt.id);}
-      var fs=Math.max(9,Math.min(r*0.7,22));
+      // Face text
+      var faceStr;
+      if(pinDisplay==='db')faceStr=pt.db!==''?pt.db:'--';
+      else if(pinDisplay==='id')faceStr=pid3(pt.id);
+      else faceStr=pt.db!==''?pt.db:pid3(pt.id);
+      var fs=Math.max(9,Math.min(r*0.72,22));
       ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.font='700 '+fs+'px "IBM Plex Sans",sans-serif';
-      ctx.lineWidth=Math.max(2,fs*0.16);ctx.strokeStyle='rgba(0,0,0,.22)';ctx.lineJoin='round';
+      ctx.lineWidth=Math.max(2,fs*0.15);ctx.strokeStyle='rgba(0,0,0,.22)';ctx.lineJoin='round';
       ctx.strokeText(faceStr,sx,sy);ctx.fillStyle=lc;ctx.fillText(faceStr,sx,sy);
-      // Pill label above pin
+      // Pill label above
       if(showPinLabel){
         var labelStr=pid3(pt.id)+(pt.db!==''?' · '+pt.db:'');
         var lfs=Math.max(9,Math.min(12,Math.round(9.5*Math.min(vS,1.8))));
