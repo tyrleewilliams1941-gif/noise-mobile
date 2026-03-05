@@ -423,7 +423,7 @@ function openSheet(id){
   document.getElementById(id).classList.add('on');
   if(id==='settSheet'){
     var l=document.getElementById('psLbl');if(l)l.textContent=gPS;
-    var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';
+    var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-2)/38*100)+'%';
     var lb=document.getElementById('lblTogBtn');if(lb)lb.textContent=showPinLabel?'On':'Off';
     document.querySelectorAll('.pin-disp-btn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===pinDisplay);});
     setTimeout(updPSPrev,40);
@@ -613,9 +613,9 @@ function zoom(f){
   var cw=parseFloat(c.style.width)||c.width, ch=parseFloat(c.style.height)||c.height;
   var cx=cw/2,cy=ch/2;vX=cx-(cx-vX)*f;vY=cy-(cy-vY)*f;vS*=f;drawPlan();
 }
-function chPS(d){gPS=Math.max(8,Math.min(40,gPS+d));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();drawPlan();}
-function chPSSlider(v){gPS=Math.max(8,Math.min(40,+v));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();drawPlan();}
-function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();}
+function chPS(d){gPS=Math.max(2,Math.min(40,gPS+d));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-2)/38*100)+'%';updPSPrev();drawPlan();}
+function chPSSlider(v){gPS=Math.max(2,Math.min(40,+v));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-2)/38*100)+'%';updPSPrev();drawPlan();}
+function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-2)/38*100)+'%';updPSPrev();}
 function updPSPrev(){
   var c=document.getElementById('psPrev');if(!c)return;
   var dpr=window.devicePixelRatio||1;
