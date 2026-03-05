@@ -252,7 +252,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
         <div class="coll-body" id="detBody"><div class="coll-inner">
           <div class="field"><label>Location</label><input id="iLoc" type="text" placeholder="e.g. Machine Room, Bay 3"></div>
           <div class="field"><label>Notes</label><textarea id="iNotes" placeholder="Additional notes"></textarea></div>
-          <div class="field"><label>Pin Size Override</label><input id="iPinSz" type="number" min="8" max="40" placeholder="Default (18)"></div>
+          <div class="field"><label>Pin Size Override</label><input id="iPinSz" type="number" min="6" max="40" placeholder="Default (18)"></div>
         </div></div>
       </div>
       <div class="pin-hint" id="pinHint">&#128205; Go to Floor Plan to place this pin</div>
@@ -380,7 +380,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="overlay" id="delSheet" onclick="closeSheetBg(event,'delSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Delete Point</div><div style="font-size:15px;color:var(--txd);margin-bottom:18px">Delete <strong id="delPtLbl" style="color:var(--tx)"></strong>?</div><div class="sh-actions"><button class="btn btn-s" onclick="closeSheet('delSheet')">Cancel</button><button class="btn btn-d" onclick="doDelPt()">Delete</button></div></div></div>
 <div class="overlay" id="settSheet" onclick="closeSheetBg(event,'settSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Settings</div><div style="display:flex;flex-direction:column;gap:20px">
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Theme</span><button id="themeBtn" onclick="togTheme()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">Light</button></div>
-<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="8" max="40" step="2" value="18" oninput="chPSSlider(+this.value)" onchange="chPSSlider(+this.value)"></div>
+<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(+this.value)" onchange="chPSSlider(+this.value)"></div>
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
 <div><div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:10px">Pin face shows</div><div style="display:flex;gap:8px"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB only</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">ID + dB</button></div></div>
 </div><div style="margin-top:20px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
@@ -613,9 +613,13 @@ function zoom(f){
   var cw=parseFloat(c.style.width)||c.width, ch=parseFloat(c.style.height)||c.height;
   var cx=cw/2,cy=ch/2;vX=cx-(cx-vX)*f;vY=cy-(cy-vY)*f;vS*=f;drawPlan();
 }
-function chPS(d){gPS=Math.max(8,Math.min(40,gPS+d));var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();drawPlan();}
-function chPSSlider(v){gPS=Math.max(8,Math.min(40,+v));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();drawPlan();}
-function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();}
+function chPS(d){gPS=Math.max(6,Math.min(40,gPS+d));syncPSUI();drawPlan();}
+function chPSSlider(v){gPS=v;syncPSUI();drawPlan();}
+function syncPSUI(){
+  var l=document.getElementById('psLbl');if(l)l.textContent=gPS;
+  var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;
+  updPSPrev();
+}
 function updPSPrev(){
   var c=document.getElementById('psPrev');if(!c)return;
   var dpr=window.devicePixelRatio||1;
@@ -623,7 +627,7 @@ function updPSPrev(){
   c.style.width='44px';c.style.height='44px';
   var ctx=c.getContext('2d');ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,44,44);
-  var r=Math.max(8,Math.min(gPS,19));
+  var r=Math.max(6,Math.min(gPS,19));
   ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=5;ctx.shadowOffsetY=2;
   ctx.beginPath();ctx.arc(22,22,r+2.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fill();
   ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
@@ -668,7 +672,7 @@ function drawPlan(){
     var sx=pt.pinX*vS+vX, sy=pt.pinY*vS+vY;
     var isA=pt.id===curPId;
     // radius scales with zoom so pins stay proportional to the plan
-    var r=Math.max(4,Math.min(58,Math.round((pt.pinSize||gPS)*vS*(isA?1.35:1))));
+    var r=Math.max(10,Math.min(58,Math.round((pt.pinSize||gPS)*vS*(isA?1.35:1))));
     var fill=dbColor(pt.db);
     var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
     var lc=bright?'#111':'#fff';
@@ -768,6 +772,25 @@ window.addEventListener('load',function(){
   setInterval(autoSave,30000);
   window.addEventListener('resize',function(){if(curS===2){resizeC();drawPlan();}});
   window.addEventListener('orientationchange',function(){setTimeout(function(){if(curS===2){resizeC();resetView();}},200);});
+
+  // iOS Safari fix: range input inside position:fixed overlays doesn't fire oninput
+  // during touch drag. Attach touchmove directly on the element instead.
+  var sl=document.getElementById('psSlider');
+  if(sl){
+    sl.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
+    sl.addEventListener('touchmove',function(e){
+      e.stopPropagation();
+      // Manually compute value from touch position
+      var rect=sl.getBoundingClientRect();
+      var touch=e.touches[0];
+      var pct=Math.max(0,Math.min(1,(touch.clientX-rect.left)/rect.width));
+      var min=+sl.min||8, max=+sl.max||40, step=+sl.step||2;
+      var raw=min+pct*(max-min);
+      var snapped=Math.round(raw/step)*step;
+      var clamped=Math.max(min,Math.min(max,snapped));
+      if(clamped!==gPS){sl.value=clamped;chPSSlider(clamped);}
+    },{passive:true});
+  }
 });
 
 
