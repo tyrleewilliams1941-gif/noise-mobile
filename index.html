@@ -33,10 +33,9 @@ input[type=number]{font-family:var(--mono);}
 select{-webkit-appearance:none;appearance:none;}
 button{font-family:var(--sans);cursor:pointer;border:none;outline:none;touch-action:manipulation;}
 textarea{resize:none;min-height:72px;}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:var(--sf3);border-radius:3px;border:none;padding:0;margin:8px 0;outline:none;touch-action:pan-x;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:pointer;}
-input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);cursor:pointer;}
-input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:var(--sf3);border-radius:3px;border:none;padding:0;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);cursor:pointer;}
 .pin-disp-btn{font-family:var(--mono);font-size:11px;font-weight:600;flex:1;padding:10px 6px;border-radius:var(--rs);background:var(--sf2);color:var(--txd);border:1.5px solid var(--bd);cursor:pointer;touch-action:manipulation;transition:all .15s;}
 .pin-disp-btn.on{background:var(--acd);color:var(--ac);border-color:var(--ac);}
 .hidden{display:none!important;}
@@ -381,7 +380,7 @@ input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;}
 <div class="overlay" id="delSheet" onclick="closeSheetBg(event,'delSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Delete Point</div><div style="font-size:15px;color:var(--txd);margin-bottom:18px">Delete <strong id="delPtLbl" style="color:var(--tx)"></strong>?</div><div class="sh-actions"><button class="btn btn-s" onclick="closeSheet('delSheet')">Cancel</button><button class="btn btn-d" onclick="doDelPt()">Delete</button></div></div></div>
 <div class="overlay" id="settSheet" onclick="closeSheetBg(event,'settSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Settings</div><div style="display:flex;flex-direction:column;gap:20px">
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Theme</span><button id="themeBtn" onclick="togTheme()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">Light</button></div>
-<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(+this.value)" onchange="chPSSlider(+this.value)"></div>
+<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas></div><div style="display:flex;align-items:center;gap:12px"><button onclick="chPS(-2)" style="width:52px;height:52px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);font-size:26px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0">−</button><div style="flex:1;height:6px;background:var(--sf3);border-radius:3px;position:relative"><div id="psTrack" style="height:100%;background:var(--ac);border-radius:3px;width:50%"></div></div><button onclick="chPS(2)" style="width:52px;height:52px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);font-size:26px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0">+</button><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div>
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
 <div><div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:10px">Pin face shows</div><div style="display:flex;gap:8px"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB only</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">ID + dB</button></div></div>
 </div><div style="margin-top:20px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
@@ -423,8 +422,8 @@ function doUndo(){if(!undoStack.length){toast('Nothing to undo',true);return;}va
 function openSheet(id){
   document.getElementById(id).classList.add('on');
   if(id==='settSheet'){
-    var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;
     var l=document.getElementById('psLbl');if(l)l.textContent=gPS;
+    var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';
     var lb=document.getElementById('lblTogBtn');if(lb)lb.textContent=showPinLabel?'On':'Off';
     document.querySelectorAll('.pin-disp-btn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===pinDisplay);});
     setTimeout(updPSPrev,40);
@@ -614,9 +613,8 @@ function zoom(f){
   var cw=parseFloat(c.style.width)||c.width, ch=parseFloat(c.style.height)||c.height;
   var cx=cw/2,cy=ch/2;vX=cx-(cx-vX)*f;vY=cy-(cy-vY)*f;vS*=f;drawPlan();
 }
-function chPS(d){gPS=Math.max(8,Math.min(40,gPS+d));var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();drawPlan();}
-function chPSSlider(v){gPS=Math.max(8,Math.min(40,+v));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();drawPlan();}
-function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();}
+function chPS(d){gPS=Math.max(8,Math.min(40,gPS+d));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();drawPlan();}
+function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();}
 function updPSPrev(){
   var c=document.getElementById('psPrev');if(!c)return;
   var dpr=window.devicePixelRatio||1;
@@ -769,19 +767,6 @@ window.addEventListener('load',function(){
   setInterval(autoSave,30000);
   window.addEventListener('resize',function(){if(curS===2){resizeC();drawPlan();}});
   window.addEventListener('orientationchange',function(){setTimeout(function(){if(curS===2){resizeC();resetView();}},200);});
-  // iOS Safari: range input inside fixed overlay doesn't fire oninput during touch drag
-  var sl=document.getElementById('psSlider');
-  if(sl){
-    sl.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
-    sl.addEventListener('touchmove',function(e){
-      e.stopPropagation();
-      var rect=sl.getBoundingClientRect();
-      var pct=Math.max(0,Math.min(1,(e.touches[0].clientX-rect.left)/rect.width));
-      var mn=+sl.min||8,mx=+sl.max||40,st=+sl.step||2;
-      var val=Math.max(mn,Math.min(mx,Math.round((mn+pct*(mx-mn))/st)*st));
-      if(val!==gPS){sl.value=val;chPSSlider(val);}
-    },{passive:true});
-  }
 });
 
 
