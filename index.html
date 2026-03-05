@@ -33,9 +33,10 @@ input[type=number]{font-family:var(--mono);}
 select{-webkit-appearance:none;appearance:none;}
 button{font-family:var(--sans);cursor:pointer;border:none;outline:none;touch-action:manipulation;}
 textarea{resize:none;min-height:72px;}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:var(--sf3);border-radius:3px;border:none;padding:0;outline:none;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:pointer;}
-input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);cursor:pointer;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:var(--sf3);border-radius:3px;border:none;padding:0;margin:8px 0;outline:none;touch-action:pan-x;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);box-shadow:0 1px 6px rgba(0,0,0,.5);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--ac);border:3px solid var(--sf);cursor:pointer;}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;}
 .pin-disp-btn{font-family:var(--mono);font-size:11px;font-weight:600;flex:1;padding:10px 6px;border-radius:var(--rs);background:var(--sf2);color:var(--txd);border:1.5px solid var(--bd);cursor:pointer;touch-action:manipulation;transition:all .15s;}
 .pin-disp-btn.on{background:var(--acd);color:var(--ac);border-color:var(--ac);}
 .hidden{display:none!important;}
@@ -380,7 +381,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="overlay" id="delSheet" onclick="closeSheetBg(event,'delSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Delete Point</div><div style="font-size:15px;color:var(--txd);margin-bottom:18px">Delete <strong id="delPtLbl" style="color:var(--tx)"></strong>?</div><div class="sh-actions"><button class="btn btn-s" onclick="closeSheet('delSheet')">Cancel</button><button class="btn btn-d" onclick="doDelPt()">Delete</button></div></div></div>
 <div class="overlay" id="settSheet" onclick="closeSheetBg(event,'settSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Settings</div><div style="display:flex;flex-direction:column;gap:20px">
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Theme</span><button id="themeBtn" onclick="togTheme()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">Light</button></div>
-<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(+this.value)"></div>
+<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(+this.value)" onchange="chPSSlider(+this.value)"></div>
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
 <div><div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:10px">Pin face shows</div><div style="display:flex;gap:8px"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB only</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">ID + dB</button></div></div>
 </div><div style="margin-top:20px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
@@ -613,13 +614,9 @@ function zoom(f){
   var cw=parseFloat(c.style.width)||c.width, ch=parseFloat(c.style.height)||c.height;
   var cx=cw/2,cy=ch/2;vX=cx-(cx-vX)*f;vY=cy-(cy-vY)*f;vS*=f;drawPlan();
 }
-function chPS(d){gPS=Math.max(6,Math.min(40,gPS+d));syncPSUI();drawPlan();}
-function chPSSlider(v){gPS=v;syncPSUI();drawPlan();}
-function syncPSUI(){
-  var l=document.getElementById('psLbl');if(l)l.textContent=gPS;
-  var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;
-  updPSPrev();
-}
+function chPS(d){gPS=Math.max(8,Math.min(40,gPS+d));var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();drawPlan();}
+function chPSSlider(v){gPS=Math.max(8,Math.min(40,+v));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();drawPlan();}
+function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;updPSPrev();}
 function updPSPrev(){
   var c=document.getElementById('psPrev');if(!c)return;
   var dpr=window.devicePixelRatio||1;
@@ -672,7 +669,7 @@ function drawPlan(){
     var sx=pt.pinX*vS+vX, sy=pt.pinY*vS+vY;
     var isA=pt.id===curPId;
     // radius scales with zoom so pins stay proportional to the plan
-    var r=Math.max(10,Math.min(58,Math.round(gPS*vS*(isA?1.35:1))));
+    var r=Math.max(8,Math.min(58,Math.round(gPS*vS*(isA?1.35:1))));
     var fill=dbColor(pt.db);
     var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
     var lc=bright?'#111':'#fff';
@@ -686,7 +683,7 @@ function drawPlan(){
     if(isA){ctx.beginPath();ctx.arc(sx,sy,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.stroke();}
     // --- pin face text ---
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
-    if(pinDisplay==='both'&&r>=14){
+    if(pinDisplay==='both'){
       // two lines: ID on top, dB on bottom
       var idStr=pid3(pt.id);
       var dbStr=pt.db!==''?pt.db:'--';
@@ -770,7 +767,9 @@ window.addEventListener('load',function(){
   doseData=doseData.length?doseData:Array.from({length:10},function(_,i){return mkW(i+1);});
   renderAll();updFlrSel();setupCanvasEvents();
   setInterval(autoSave,30000);
-  // iOS fix: range input inside fixed overlay doesn't fire oninput during drag
+  window.addEventListener('resize',function(){if(curS===2){resizeC();drawPlan();}});
+  window.addEventListener('orientationchange',function(){setTimeout(function(){if(curS===2){resizeC();resetView();}},200);});
+  // iOS Safari: range input inside fixed overlay doesn't fire oninput during touch drag
   var sl=document.getElementById('psSlider');
   if(sl){
     sl.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true});
@@ -778,14 +777,11 @@ window.addEventListener('load',function(){
       e.stopPropagation();
       var rect=sl.getBoundingClientRect();
       var pct=Math.max(0,Math.min(1,(e.touches[0].clientX-rect.left)/rect.width));
-      var min=+sl.min,max=+sl.max,step=+sl.step;
-      var val=Math.round((min+pct*(max-min))/step)*step;
-      val=Math.max(min,Math.min(max,val));
+      var mn=+sl.min||8,mx=+sl.max||40,st=+sl.step||2;
+      var val=Math.max(mn,Math.min(mx,Math.round((mn+pct*(mx-mn))/st)*st));
       if(val!==gPS){sl.value=val;chPSSlider(val);}
     },{passive:true});
   }
-  window.addEventListener('resize',function(){if(curS===2){resizeC();drawPlan();}});
-  window.addEventListener('orientationchange',function(){setTimeout(function(){if(curS===2){resizeC();resetView();}},200);});
 });
 
 
