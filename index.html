@@ -380,7 +380,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div class="overlay" id="delSheet" onclick="closeSheetBg(event,'delSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Delete Point</div><div style="font-size:15px;color:var(--txd);margin-bottom:18px">Delete <strong id="delPtLbl" style="color:var(--tx)"></strong>?</div><div class="sh-actions"><button class="btn btn-s" onclick="closeSheet('delSheet')">Cancel</button><button class="btn btn-d" onclick="doDelPt()">Delete</button></div></div></div>
 <div class="overlay" id="settSheet" onclick="closeSheetBg(event,'settSheet')"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Settings</div><div style="display:flex;flex-direction:column;gap:20px">
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Theme</span><button id="themeBtn" onclick="togTheme()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">Light</button></div>
-<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><div style="display:flex;align-items:center;gap:10px"><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div><input type="range" id="psSlider" min="6" max="40" step="2" value="18" oninput="chPSSlider(+this.value)"></div>
+<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Base Pin Size</span><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas></div><div style="display:flex;align-items:center;gap:12px"><button onclick="chPS(-2)" style="width:52px;height:52px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);font-size:26px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0">−</button><div style="flex:1;height:6px;background:var(--sf3);border-radius:3px;position:relative;overflow:hidden"><div id="psTrack" style="height:100%;background:var(--ac);border-radius:3px;width:50%"></div></div><button onclick="chPS(2)" style="width:52px;height:52px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);font-size:26px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0">+</button><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div>
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
 <div><div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:10px">Pin face shows</div><div style="display:flex;gap:8px"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB only</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">ID + dB</button></div></div>
 </div><div style="margin-top:20px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
@@ -422,8 +422,8 @@ function doUndo(){if(!undoStack.length){toast('Nothing to undo',true);return;}va
 function openSheet(id){
   document.getElementById(id).classList.add('on');
   if(id==='settSheet'){
-    var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;
     var l=document.getElementById('psLbl');if(l)l.textContent=gPS;
+    var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';
     var lb=document.getElementById('lblTogBtn');if(lb)lb.textContent=showPinLabel?'On':'Off';
     document.querySelectorAll('.pin-disp-btn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===pinDisplay);});
     setTimeout(updPSPrev,40);
@@ -468,7 +468,7 @@ function renderEntry(){
   document.getElementById('iPeak').value=pt.peak;
   document.getElementById('iLoc').value=pt.location;
   document.getElementById('iNotes').value=pt.notes||'';
-  var ps=document.getElementById('iPinSz');if(ps)ps.value='';
+  var ps=document.getElementById('iPinSz');if(ps)ps.value=pt.pinSize||'';
   document.getElementById('iDb').classList.remove('err');document.getElementById('iPeak').classList.remove('err');
   if(ph)ph.classList.toggle('on',!!(floor.planImage&&pt.pinX===null));var rpr=document.getElementById('returnPlanRow');if(rpr)rpr.style.display=fromPlan?'block':'none';
   updateBand(pt.db);renderPhoGrid(pt);
@@ -613,13 +613,8 @@ function zoom(f){
   var cw=parseFloat(c.style.width)||c.width, ch=parseFloat(c.style.height)||c.height;
   var cx=cw/2,cy=ch/2;vX=cx-(cx-vX)*f;vY=cy-(cy-vY)*f;vS*=f;drawPlan();
 }
-function chPS(d){gPS=Math.max(6,Math.min(40,gPS+d));syncPSUI();drawPlan();}
-function chPSSlider(v){gPS=v;syncPSUI();drawPlan();}
-function syncPSUI(){
-  var l=document.getElementById('psLbl');if(l)l.textContent=gPS;
-  var sl=document.getElementById('psSlider');if(sl)sl.value=gPS;
-  updPSPrev();
-}
+function chPS(d){gPS=Math.max(8,Math.min(40,gPS+d));var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();drawPlan();}
+function syncPSUI(){var l=document.getElementById('psLbl');if(l)l.textContent=gPS;var tr=document.getElementById('psTrack');if(tr)tr.style.width=Math.round((gPS-8)/32*100)+'%';updPSPrev();}
 function updPSPrev(){
   var c=document.getElementById('psPrev');if(!c)return;
   var dpr=window.devicePixelRatio||1;
@@ -686,7 +681,7 @@ function drawPlan(){
     if(isA){ctx.beginPath();ctx.arc(sx,sy,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.stroke();}
     // --- pin face text ---
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
-    if(pinDisplay==='both'&&r>=14){
+    if(pinDisplay==='both'){
       // two lines: ID on top, dB on bottom
       var idStr=pid3(pt.id);
       var dbStr=pt.db!==''?pt.db:'--';
@@ -780,10 +775,8 @@ window.addEventListener('load',function(){
 <script>
 if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com'){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('sw.js').then(function(reg){
-      console.log('SW registered:', reg.scope);
-    }).catch(function(err){
-      console.log('SW registration failed:', err);
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){r.unregister();});
     });
   });
 }
