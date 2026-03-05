@@ -1,4 +1,4 @@
-const CACHE = 'noise-survey-v1';
+const CACHE = 'noise-survey-v2';
 const ASSETS = [
   './',
   './index.html',
