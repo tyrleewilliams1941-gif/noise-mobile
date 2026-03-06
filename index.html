@@ -14,6 +14,7 @@
 <title>Noise Survey</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -307,7 +308,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 </div>
 <div id="sPlan">
   <div class="plan-tb">
-    <label class="pb" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;border-color:var(--ac);color:var(--ac);background:var(--acd)">&#128444; Import Plan<input type="file" id="planIn" accept="image/*,.dxf" style="display:none" onchange="loadPlan(event)"></label>
+    <label class="pb" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;border-color:var(--ac);color:var(--ac);background:var(--acd)">&#128444; Import Plan<input type="file" id="planIn" accept="image/*,.dxf,.pdf" style="display:none" onchange="loadPlan(event)"></label>
     <div class="pb-sep"></div>
     <button class="pb on" id="pbPin" onclick="setMode('pin')">&#128205; Pin</button>
     <button class="pb" id="pbPan" onclick="setMode('pan')">&#9995; Pan</button>
@@ -320,7 +321,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </div>
   <div class="hatch-hint" id="hatchHint">Tap to draw &bull; Double-tap to close &bull; <span id="hPts">0</span> pts</div>
   <div class="plan-area" id="planWrap">
-    <div class="drop-zone" id="dropZone" onclick="document.getElementById('planIn').click()"><div class="drop-icon">&#128506;</div><div class="drop-t">Import Floor Plan</div><div class="drop-s">Image or DXF &bull; Tap to browse</div></div>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('planIn').click()"><div class="drop-icon">&#128506;</div><div class="drop-t">Import Floor Plan</div><div class="drop-s">Image, PDF or DXF &bull; Tap to browse</div></div>
     <canvas id="planCanvas"></canvas>
     <div class="z-fab" id="zFab" style="display:none">
       <button class="z-btn" onclick="zoom(1.25)">+</button>
@@ -588,7 +589,8 @@ function clearDose(){if(!confirm('Clear all dose data?'))return;snap('clear dose
 
 // FLOOR PLAN
 function loadFP(){var floor=gcf();var canvas=document.getElementById('planCanvas');var dz=document.getElementById('dropZone');var zf=document.getElementById('zFab');var leg=document.getElementById('planLeg');var ep=document.getElementById('epBtn');var rm=document.getElementById('rmBtn');planImg=null;if(!floor||!floor.planImage){canvas.style.display='none';dz.style.display='flex';if(zf)zf.style.display='none';if(leg)leg.classList.remove('on');if(ep)ep.style.display='none';if(rm)rm.style.display='none';return;}var img=new Image();img.onload=function(){planImg=img;canvas.style.display='block';dz.style.display='none';if(zf)zf.style.display='flex';if(leg)leg.classList.add('on');if(ep)ep.style.display='block';if(rm)rm.style.display='block';setTimeout(function(){resizeC();if(canvas.width&&canvas.height)resetView();else setTimeout(resetView,100);},80);};img.onerror=function(){toast('Could not load floor plan',true);floor.planImage=null;};img.src=floor.planImage;}
-function loadPlan(e){var file=e.target.files[0];if(!file)return;if(file.name&&file.name.toLowerCase().endsWith('.dxf')){var r=new FileReader();r.onload=function(ev){if(curS!==2)goTo(2);setTimeout(function(){loadDXF(ev.target.result);},120);};r.readAsText(file);e.target.value='';return;}var r=new FileReader();r.onload=function(ev){snap('import plan');gcf().planImage=ev.target.result;if(curS!==2)goTo(2);setTimeout(function(){loadFP();toast('Floor plan loaded');},120);};r.readAsDataURL(file);e.target.value='';}
+function loadPlan(e){var file=e.target.files[0];if(!file)return;if(file.name&&file.name.toLowerCase().endsWith('.dxf')){var r=new FileReader();r.onload=function(ev){if(curS!==2)goTo(2);setTimeout(function(){loadDXF(ev.target.result);},120);};r.readAsText(file);e.target.value='';return;}if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){var r=new FileReader();r.onload=function(ev){loadPlanPDF(ev.target.result);};r.readAsArrayBuffer(file);e.target.value='';return;}var r=new FileReader();r.onload=function(ev){snap('import plan');gcf().planImage=ev.target.result;if(curS!==2)goTo(2);setTimeout(function(){loadFP();toast('Floor plan loaded');},120);};r.readAsDataURL(file);e.target.value='';}
+function loadPlanPDF(arrayBuf){toast('Rendering PDF...');var pdfjsLib=window['pdfjs-dist/build/pdf'];if(!pdfjsLib){toast('PDF.js not loaded',true);return;}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';var typedArr=new Uint8Array(arrayBuf);pdfjsLib.getDocument({data:typedArr}).promise.then(function(pdf){return pdf.getPage(1);}).then(function(page){var scale=2;var vp=page.getViewport({scale:scale});var oc=document.createElement('canvas');oc.width=vp.width;oc.height=vp.height;var ctx=oc.getContext('2d');return page.render({canvasContext:ctx,viewport:vp}).promise.then(function(){var url=oc.toDataURL('image/png');snap('import plan');gcf().planImage=url;if(curS!==2)goTo(2);setTimeout(function(){loadFP();toast('PDF loaded (page 1)');},120);});}).catch(function(err){toast('PDF error: '+err.message,true);});}
 function clearPlan(){if(!gcf()||!gcf().planImage)return;if(!confirm('Remove floor plan?'))return;snap('remove plan');gcf().planImage=null;loadFP();}
 function resizeC(){
   var c=document.getElementById('planCanvas'),w=document.getElementById('planWrap');
@@ -724,7 +726,7 @@ function setupCanvasEvents(){
   var canvas=document.getElementById('planCanvas');var wrap=document.getElementById('planWrap');
   var touching=false,lTX=0,lTY=0,pinchD=null;
   wrap.addEventListener('dragover',function(e){e.preventDefault();});
-  wrap.addEventListener('drop',function(e){e.preventDefault();var file=e.dataTransfer.files[0];if(!file)return;var isDXF=file.name&&file.name.toLowerCase().endsWith('.dxf');var r=new FileReader();if(isDXF){r.onload=function(ev){loadDXF(ev.target.result);};r.readAsText(file);}else{r.onload=function(ev){snap('import plan');gcf().planImage=ev.target.result;loadFP();toast('Loaded');};r.readAsDataURL(file);}});
+  wrap.addEventListener('drop',function(e){e.preventDefault();var file=e.dataTransfer.files[0];if(!file)return;var isDXF=file.name&&file.name.toLowerCase().endsWith('.dxf');var isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');var r=new FileReader();if(isDXF){r.onload=function(ev){loadDXF(ev.target.result);};r.readAsText(file);}else if(isPDF){r.onload=function(ev){loadPlanPDF(ev.target.result);};r.readAsArrayBuffer(file);}else{r.onload=function(ev){snap('import plan');gcf().planImage=ev.target.result;loadFP();toast('Loaded');};r.readAsDataURL(file);}});
   wrap.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault();},{passive:false});
   canvas.addEventListener('touchstart',function(e){if(e.touches.length===1){touching=true;lTX=e.touches[0].clientX;lTY=e.touches[0].clientY;}else if(e.touches.length===2){var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;pinchD=Math.sqrt(dx*dx+dy*dy);}},{passive:true});
   canvas.addEventListener('touchmove',function(e){if(e.touches.length===1&&mode==='pan'&&touching){var dx=e.touches[0].clientX-lTX,dy=e.touches[0].clientY-lTY;vX+=dx;vY+=dy;lTX=e.touches[0].clientX;lTY=e.touches[0].clientY;drawPlan();}else if(e.touches.length===2&&pinchD!==null){var dx2=e.touches[0].clientX-e.touches[1].clientX,dy2=e.touches[0].clientY-e.touches[1].clientY;var nd=Math.sqrt(dx2*dx2+dy2*dy2),f=nd/pinchD;pinchD=nd;var rect=canvas.getBoundingClientRect();var cx=(e.touches[0].clientX+e.touches[1].clientX)/2-rect.left;var cy=(e.touches[0].clientY+e.touches[1].clientY)/2-rect.top;vX=cx-(cx-vX)*f;vY=cy-(cy-vY)*f;vS*=f;drawPlan();}},{passive:true});
