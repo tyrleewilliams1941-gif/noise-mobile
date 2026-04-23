@@ -48,7 +48,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 #sPlan{display:none;flex-direction:column;overflow:hidden;position:absolute;inset:0;}
 #sPlan.on{display:flex;}
 #nav{height:var(--nh);background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:100;box-shadow:0 -1px 4px rgba(0,0,0,.06);}
-
+.nav-ind{position:absolute;top:0;left:0;width:20%;height:3px;background:var(--ac);border-radius:0 0 3px 3px;transition:left .2s;}
 
 .logo{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);flex:1;}
 .hbtn{width:42px;height:42px;border-radius:var(--rs);background:transparent;color:var(--txd);display:flex;align-items:center;justify-content:center;font-size:20px;}
@@ -391,6 +391,21 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Pin Size</span><canvas id="psPrev" width="44" height="44" style="display:block;flex-shrink:0"></canvas></div><div style="display:flex;align-items:center;gap:12px"><button onclick="chPS(-2)" style="width:52px;height:52px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);font-size:26px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0">−</button><div style="flex:1;height:6px;background:var(--sf3);border-radius:3px;overflow:hidden"><div id="psTrack" style="height:100%;background:var(--ac);border-radius:3px;width:50%"></div></div><button onclick="chPS(2)" style="width:52px;height:52px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd);color:var(--tx);font-size:26px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;flex-shrink:0">+</button><span id="psLbl" style="font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ac);min-width:26px;text-align:right">18</span></div></div>
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
 <div><div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:10px">Pin face shows</div><div style="display:flex;gap:8px"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB only</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">ID + dB</button></div></div>
+<div style="border-top:1px solid var(--bd);padding-top:16px">
+  <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:12px">Pin Clarity (small pins)</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Threshold rendering</span><button id="btnPinThresh" onclick="togPinOpt('pinThreshold','btnPinThresh')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">On</button></div>
+    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Dot → ID only → full detail based on size</div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Hard outline</span><button id="btnPinHardOutline" onclick="togPinOpt('pinHardOutline','btnPinHardOutline')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">On</button></div>
+    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Black stroke instead of white shadow ring</div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Auto-hide labels</span><button id="btnPinAutoHide" onclick="togPinOpt('pinAutoHideLabel','btnPinAutoHide')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">On</button></div>
+    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Hide pill labels when pins are too small</div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Boost colours</span><button id="btnPinBoost" onclick="togPinOpt('pinBoostColor','btnPinBoost')" style="font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--txd);border:1px solid var(--bd);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">Off</button></div>
+    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Punchier green / amber / red colours</div>
+    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Ring-only (tiny)</span><button id="btnPinRing" onclick="togPinOpt('pinRingMode','btnPinRing')" style="font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--txd);border:1px solid var(--bd);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">Off</button></div>
+    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Hollow ring instead of filled dot at minimum size</div>
+  </div>
+</div>
 </div><div style="margin-top:20px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
 <div class="lb" id="lb"><img class="lb-img" id="lbImg"><div class="lb-bar"><button class="lb-btn" onclick="lbPrev()">&#8592;</button><button class="lb-btn del" onclick="lbDel()">&#128465;</button><button class="lb-btn" onclick="lbNext()">&#8594;</button><button class="lb-btn" onclick="closeLB()">&#10005;</button></div><div class="lb-cap" id="lbCap"></div></div>
 
@@ -402,6 +417,7 @@ var doseData=[], undoStack=[];
 var planImg=null, vS=1, vX=0, vY=0;
 var mode='pin', gPS=18;
 var showPinLabel=true, pinDisplay='db';
+var pinThreshold=true, pinHardOutline=true, pinAutoHideLabel=true, pinBoostColor=false, pinRingMode=false;
 var hPtsArr=[], lastTap=0;
 var lbPId=null, lbIdx=0;
 var fModal='add', curS=0, fromPlan=false;
@@ -436,6 +452,7 @@ function openSheet(id){
     var lb=document.getElementById('lblTogBtn');if(lb)lb.textContent=showPinLabel?'On':'Off';
     document.querySelectorAll('.pin-disp-btn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===pinDisplay);});
     setTimeout(updPSPrev,40);
+    syncPinOptBtns();
   }
 }
 function closeSheet(id){document.getElementById(id).classList.remove('on');}
@@ -677,6 +694,22 @@ function updPSPrev(){
   ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#111';
   ctx.fillText('82',22,22);
 }
+function togPinOpt(varName,btnId){
+  if(varName==='pinThreshold')pinThreshold=!pinThreshold;
+  else if(varName==='pinHardOutline')pinHardOutline=!pinHardOutline;
+  else if(varName==='pinAutoHideLabel')pinAutoHideLabel=!pinAutoHideLabel;
+  else if(varName==='pinBoostColor')pinBoostColor=!pinBoostColor;
+  else if(varName==='pinRingMode')pinRingMode=!pinRingMode;
+  var val=(varName==='pinThreshold'?pinThreshold:varName==='pinHardOutline'?pinHardOutline:varName==='pinAutoHideLabel'?pinAutoHideLabel:varName==='pinBoostColor'?pinBoostColor:pinRingMode);
+  var btn=document.getElementById(btnId);
+  if(btn){btn.textContent=val?'On':'Off';btn.style.background=val?'var(--acd)':'var(--sf2)';btn.style.color=val?'var(--ac)':'var(--txd)';btn.style.borderColor=val?'var(--ac)':'var(--bd)';}
+  drawPlan();
+}
+function syncPinOptBtns(){
+  var opts=[['pinThreshold','btnPinThresh'],['pinHardOutline','btnPinHardOutline'],['pinAutoHideLabel','btnPinAutoHide'],['pinBoostColor','btnPinBoost'],['pinRingMode','btnPinRing']];
+  var vals={pinThreshold:pinThreshold,pinHardOutline:pinHardOutline,pinAutoHideLabel:pinAutoHideLabel,pinBoostColor:pinBoostColor,pinRingMode:pinRingMode};
+  opts.forEach(function(o){var btn=document.getElementById(o[1]);if(!btn)return;var v=vals[o[0]];btn.textContent=v?'On':'Off';btn.style.background=v?'var(--acd)':'var(--sf2)';btn.style.color=v?'var(--ac)':'var(--txd)';btn.style.borderColor=v?'var(--ac)':'var(--bd)';});
+}
 function togPinLabel(){
   showPinLabel=!showPinLabel;
   var b=document.getElementById('lblTogBtn');if(b)b.textContent=showPinLabel?'On':'Off';
@@ -693,7 +726,17 @@ function setMode(m){mode=m;['pbPin','pbPan','pbHatch','pbNew'].forEach(function(
 function clearLastHatch(){var f=gcf();if(!f||!f.hatchZones||!f.hatchZones.length)return;snap('clear zone');f.hatchZones.pop();drawPlan();}
 
 // DRAWING
-function dbColor(db){if(db===''||isNaN(parseFloat(db)))return'#aaaaaa';var v=parseFloat(db);if(v<75)return'#aaaaaa';if(v<80)return'#a6d96a';if(v<85)return'#fdae61';return'#d73027';}
+function dbColor(db){
+  if(db===''||isNaN(parseFloat(db)))return'#aaaaaa';
+  var v=parseFloat(db);
+  if(pinBoostColor){
+    if(v<75)return'#999999';
+    if(v<80)return'#7ec850';
+    if(v<85)return'#f59b20';
+    return'#e8221a';
+  }
+  if(v<75)return'#aaaaaa';if(v<80)return'#a6d96a';if(v<85)return'#fdae61';return'#d73027';
+}
 function rrect(ctx,x,y,w,h,rad){ctx.beginPath();ctx.moveTo(x+rad,y);ctx.lineTo(x+w-rad,y);ctx.quadraticCurveTo(x+w,y,x+w,y+rad);ctx.lineTo(x+w,y+h-rad);ctx.quadraticCurveTo(x+w,y+h,x+w-rad,y+h);ctx.lineTo(x+rad,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-rad);ctx.lineTo(x,y+rad);ctx.quadraticCurveTo(x,y,x+rad,y);ctx.closePath();}
 function drawPlan(){
   updDeselBtn();
@@ -717,41 +760,83 @@ function drawPlan(){
     var fill=dbColor(pt.db);
     var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
     var lc=bright?'#111':'#fff';
-    // shadow + white ring
-    ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;
-    ctx.beginPath();ctx.arc(sx,sy,r+3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.95)';ctx.fill();
-    ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-    // colour fill
-    ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
-    // active ring
-    if(isA){ctx.beginPath();ctx.arc(sx,sy,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.stroke();}
-    // --- pin face text ---
-    ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
-    if(pinDisplay==='both'&&r>=14){
-      // two lines: ID on top, dB on bottom
-      var idStr=pid3(pt.id);
-      var dbStr=pt.db!==''?pt.db:'--';
-      var fsId=Math.max(7,Math.min(r*0.38,11));
-      var fsDb=Math.max(8,Math.min(r*0.52,16));
-      var gap=r*0.12;
-      var midY=sy+gap*0.5;
-      // dB (bottom, bigger)
-      ctx.font='700 '+fsDb+'px "IBM Plex Sans",sans-serif';
-      ctx.lineWidth=Math.max(1.5,fsDb*0.14);ctx.strokeStyle='rgba(0,0,0,.22)';
-      ctx.strokeText(dbStr,sx,midY+fsId*0.6+gap);ctx.fillStyle=lc;ctx.fillText(dbStr,sx,midY+fsId*0.6+gap);
-      // ID (top, smaller)
-      ctx.font='600 '+fsId+'px "IBM Plex Sans",sans-serif';
-      ctx.lineWidth=Math.max(1,fsId*0.14);ctx.strokeStyle='rgba(0,0,0,.22)';
-      ctx.strokeText(idStr,sx,midY-fsDb*0.6);ctx.fillStyle=lc;ctx.fillText(idStr,sx,midY-fsDb*0.6);
-    } else {
-      var faceStr=pinDisplay==='id'?pid3(pt.id):(pt.db!==''?pt.db:'--');
-      var fs=Math.max(9,Math.min(r*0.68,22));
-      ctx.font='700 '+fs+'px "IBM Plex Sans",sans-serif';
-      ctx.lineWidth=Math.max(2,fs*0.14);ctx.strokeStyle='rgba(0,0,0,.22)';
-      ctx.strokeText(faceStr,sx,sy);ctx.fillStyle=lc;ctx.fillText(faceStr,sx,sy);
+    // determine tier based on threshold setting
+    var tier = 'full';
+    if(pinThreshold){
+      if(r < 10) tier='dot';
+      else if(r < 16) tier='mid';
     }
-    // pill label above
-    if(showPinLabel){
+
+    // outline style
+    var outlineW = pinHardOutline ? Math.max(2, r*0.18) : 3;
+    var outlineC = pinHardOutline ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,.95)';
+    var outlineR = pinHardOutline ? 0 : 3;
+
+    if(!pinHardOutline){
+      ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;
+    }
+
+    if(tier==='dot'){
+      // ring-only or solid dot
+      if(pinRingMode){
+        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);
+        ctx.strokeStyle=fill;ctx.lineWidth=Math.max(2.5,r*0.5);ctx.stroke();
+        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);
+        ctx.strokeStyle='rgba(0,0,0,0.6)';ctx.lineWidth=Math.max(1,r*0.15);ctx.stroke();
+      } else {
+        ctx.beginPath();ctx.arc(sx,sy,r+outlineR,0,Math.PI*2);ctx.fillStyle=outlineC;ctx.fill();
+        ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
+        if(pinHardOutline){ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.strokeStyle=outlineC;ctx.lineWidth=outlineW;ctx.stroke();}
+      }
+    } else {
+      // white ring or hard outline
+      ctx.beginPath();ctx.arc(sx,sy,r+(pinHardOutline?0:3),0,Math.PI*2);
+      if(pinHardOutline){ctx.strokeStyle=outlineC;ctx.lineWidth=outlineW;ctx.stroke();}
+      else{ctx.fillStyle=outlineC;ctx.fill();}
+      ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+
+      if(pinRingMode&&tier==='dot'){
+        // already handled above
+      } else if(pinRingMode){
+        // ring-only: draw empty circle with thick coloured stroke
+        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);
+        ctx.strokeStyle=fill;ctx.lineWidth=Math.max(3,r*0.4);ctx.stroke();
+      } else {
+        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
+      }
+    }
+
+    if(isA){ctx.beginPath();ctx.arc(sx,sy,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.stroke();}
+
+    // text rendering based on tier
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+    if(tier==='full'||tier==='mid'){
+      if(tier==='full'&&pinDisplay==='both'&&r>=14){
+        var idStr=pid3(pt.id);
+        var dbStr=pt.db!==''?pt.db:'--';
+        var fsId=Math.max(7,Math.min(r*0.38,11));
+        var fsDb=Math.max(8,Math.min(r*0.52,16));
+        var gap=r*0.12;
+        var midY=sy+gap*0.5;
+        ctx.font='700 '+fsDb+'px "IBM Plex Sans",sans-serif';
+        ctx.lineWidth=Math.max(1.5,fsDb*0.14);ctx.strokeStyle='rgba(0,0,0,.5)';
+        ctx.strokeText(dbStr,sx,midY+fsId*0.6+gap);ctx.fillStyle=lc;ctx.fillText(dbStr,sx,midY+fsId*0.6+gap);
+        ctx.font='600 '+fsId+'px "IBM Plex Sans",sans-serif';
+        ctx.lineWidth=Math.max(1,fsId*0.14);ctx.strokeStyle='rgba(0,0,0,.5)';
+        ctx.strokeText(idStr,sx,midY-fsDb*0.6);ctx.fillStyle=lc;ctx.fillText(idStr,sx,midY-fsDb*0.6);
+      } else {
+        var faceStr=tier==='mid'?pid3(pt.id):(pinDisplay==='id'?pid3(pt.id):(pt.db!==''?pt.db:'--'));
+        var fs=Math.max(7,Math.min(r*0.68,22));
+        ctx.font='700 '+fs+'px "IBM Plex Sans",sans-serif';
+        ctx.lineWidth=Math.max(2,fs*0.18);ctx.strokeStyle='rgba(0,0,0,.6)';
+        ctx.strokeText(faceStr,sx,sy);ctx.fillStyle=lc;ctx.fillText(faceStr,sx,sy);
+      }
+    }
+
+    // pill label: hide when small if autoHideLabel is on
+    var showLabel = showPinLabel && !(pinAutoHideLabel && r < 14);
+    if(showLabel){
       var labelStr=pid3(pt.id)+(pt.db!==''?' · '+pt.db:'');
       var lfs=Math.max(9,Math.min(12,Math.round(9.5*Math.min(vS,1.8))));
       ctx.font='600 '+lfs+'px "IBM Plex Sans",sans-serif';
@@ -868,11 +953,11 @@ function renderPDFCanvas(ps){
     var ph=lfs*1.7,pw2=tw+lfs,py2=sy-r-ph-r*0.25,px2=sx-pw2/2;
     ctx.fillStyle='rgba(13,17,23,.88)';
     ctx.beginPath();
-    var rad=lfs*0.35,rx=px2,ry=py2,rw=pw2,rh=ph;
-    ctx.moveTo(rx+rad,ry);ctx.lineTo(rx+rw-rad,ry);ctx.quadraticCurveTo(rx+rw,ry,rx+rw,ry+rad);
-    ctx.lineTo(rx+rw,ry+rh-rad);ctx.quadraticCurveTo(rx+rw,ry+rh,rx+rw-rad,ry+rh);
-    ctx.lineTo(rx+rad,ry+rh);ctx.quadraticCurveTo(rx,ry+rh,rx,ry+rh-rad);
-    ctx.lineTo(rx,ry+rad);ctx.quadraticCurveTo(rx,ry,rx+rad,ry);ctx.closePath();ctx.fill();
+    var _r=lfs*0.35,_x=px2,_y=py2,_w=pw2,_h=ph;
+    ctx.moveTo(_x+_r,_y);ctx.lineTo(_x+_w-_r,_y);ctx.quadraticCurveTo(_x+_w,_y,_x+_w,_y+_r);
+    ctx.lineTo(_x+_w,_y+_h-_r);ctx.quadraticCurveTo(_x+_w,_y+_h,_x+_w-_r,_y+_h);
+    ctx.lineTo(_x+_r,_y+_h);ctx.quadraticCurveTo(_x,_y+_h,_x,_y+_h-_r);
+    ctx.lineTo(_x,_y+_r);ctx.quadraticCurveTo(_x,_y,_x+_r,_y);ctx.closePath();ctx.fill();
     ctx.fillStyle='rgba(230,237,243,.95)';
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(labelStr,sx,py2+ph/2);
@@ -899,15 +984,13 @@ function prevPS(d){
   var lbl=document.getElementById('prevPSLbl');if(lbl)lbl.textContent=prevPinSize;
   toast('Updating preview...');
   setTimeout(function(){
-    try{
-      var fc=renderPDFCanvas(prevPinSize);
-      var pc=document.getElementById('pdfPrevCanvas');
-      var maxW=Math.min(1200,window.innerWidth-24);
-      var scale=Math.min(1,maxW/fc.width);
-      pc.width=Math.round(fc.width*scale);
-      pc.height=Math.round(fc.height*scale);
-      pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
-    }catch(e){toast('Preview error: '+e.message,true);console.error(e);}
+    var fc=renderPDFCanvas(prevPinSize);
+    var pc=document.getElementById('pdfPrevCanvas');
+    var maxW=Math.min(1200,window.innerWidth-24);
+    var scale=Math.min(1,maxW/fc.width);
+    pc.width=Math.round(fc.width*scale);
+    pc.height=Math.round(fc.height*scale);
+    pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
   },60);
 }
 
@@ -920,7 +1003,6 @@ function commitPDF(){
   if(!planImg)return;
   toast('Generating PDF...');
   setTimeout(function(){
-    try{
     var fc=renderPDFCanvas(prevPinSize);
     var pngURL=fc.toDataURL('image/png');
     var jsPDF=window.jspdf?window.jspdf.jsPDF:window.jsPDF;
@@ -940,7 +1022,6 @@ function commitPDF(){
     pdf.save(sn+'.pdf');
     closePDFPrev();
     toast('PDF saved');
-    }catch(e){toast('PDF error: '+e.message,true);console.error(e);}
   },80);
 }
 
@@ -957,15 +1038,13 @@ function exportPlanPDF(){
   if(!prev||!pc)return;
   toast('Rendering preview...');
   setTimeout(function(){
-    try{
-      var fc=renderPDFCanvas(prevPinSize);
-      var maxW=Math.min(1200,window.innerWidth-24);
-      var scale=Math.min(1,maxW/fc.width);
-      pc.width=Math.round(fc.width*scale);
-      pc.height=Math.round(fc.height*scale);
-      pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
-      prev.style.display='flex';
-    }catch(e){toast('Preview error: '+e.message,true);console.error(e);}
+    var fc=renderPDFCanvas(prevPinSize);
+    var maxW=Math.min(1200,window.innerWidth-24);
+    var scale=Math.min(1,maxW/fc.width);
+    pc.width=Math.round(fc.width*scale);
+    pc.height=Math.round(fc.height*scale);
+    pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
+    prev.style.display='flex';
   },60);
 }
 
@@ -975,8 +1054,8 @@ function loadSession(e){var file=e.target.files[0];if(!file)return;var r=new Fil
 function newSess(){if(!confirm('Start new session? All data will be lost.'))return;floors=[];doseData=Array.from({length:10},function(_,i){return mkW(i+1);});fIdC=0;pIdC={};curFId=null;curPId=null;undoStack=[];document.getElementById('mProj').value='';document.getElementById('mSite').value='';document.getElementById('mSurv').value='';var ur=document.getElementById('undoRow');if(ur)ur.classList.remove('on');var id=gfid();floors.push({id:id,name:'Ground Floor',planImage:null,points:[],hatchZones:[]});curFId=id;renderAll();loadFP();toast('New session started');}
 
 // AUTOSAVE / INIT
-function autoSave(){try{var imgs={};floors.forEach(function(f){if(f.planImage)imgs[f.id]=f.planImage;});localStorage.setItem('ns_mb_as',JSON.stringify({floors:floors.map(function(f){return Object.assign({},f,{planImage:null});}),imgs:imgs,dose:doseData,fIdC:fIdC,pIdC:pIdC,curFId:curFId,gPS:gPS,showPinLabel:showPinLabel,pinDisplay:pinDisplay}));}catch(e){}}
-function loadAutoSave(){try{var raw=localStorage.getItem('ns_mb_as');if(!raw)return false;var d=JSON.parse(raw);if(!d.floors||!d.floors.length)return false;floors=d.floors.map(function(f){return Object.assign({},f,{planImage:d.imgs&&d.imgs[f.id]?d.imgs[f.id]:null,hatchZones:f.hatchZones||[],points:(f.points||[]).map(function(p){return Object.assign({},p,{pinSize:null});})});});doseData=d.dose||Array.from({length:10},function(_,i){return mkW(i+1);});fIdC=d.fIdC||floors.length;pIdC=d.pIdC||{};curFId=d.curFId||floors[0].id;curPId=null;if(d.gPS)gPS=d.gPS;if(d.showPinLabel!==undefined)showPinLabel=d.showPinLabel;if(d.pinDisplay)pinDisplay=d.pinDisplay;return true;}catch(e){return false;}}
+function autoSave(){try{var imgs={};floors.forEach(function(f){if(f.planImage)imgs[f.id]=f.planImage;});localStorage.setItem('ns_mb_as',JSON.stringify({floors:floors.map(function(f){return Object.assign({},f,{planImage:null});}),imgs:imgs,dose:doseData,fIdC:fIdC,pIdC:pIdC,curFId:curFId,gPS:gPS,showPinLabel:showPinLabel,pinDisplay:pinDisplay,pinThreshold:pinThreshold,pinHardOutline:pinHardOutline,pinAutoHideLabel:pinAutoHideLabel,pinBoostColor:pinBoostColor,pinRingMode:pinRingMode}));}catch(e){}}
+function loadAutoSave(){try{var raw=localStorage.getItem('ns_mb_as');if(!raw)return false;var d=JSON.parse(raw);if(!d.floors||!d.floors.length)return false;floors=d.floors.map(function(f){return Object.assign({},f,{planImage:d.imgs&&d.imgs[f.id]?d.imgs[f.id]:null,hatchZones:f.hatchZones||[],points:(f.points||[]).map(function(p){return Object.assign({},p,{pinSize:null});})});});doseData=d.dose||Array.from({length:10},function(_,i){return mkW(i+1);});fIdC=d.fIdC||floors.length;pIdC=d.pIdC||{};curFId=d.curFId||floors[0].id;curPId=null;if(d.gPS)gPS=d.gPS;if(d.showPinLabel!==undefined)showPinLabel=d.showPinLabel;if(d.pinDisplay)pinDisplay=d.pinDisplay;if(d.pinThreshold!==undefined)pinThreshold=d.pinThreshold;if(d.pinHardOutline!==undefined)pinHardOutline=d.pinHardOutline;if(d.pinAutoHideLabel!==undefined)pinAutoHideLabel=d.pinAutoHideLabel;if(d.pinBoostColor!==undefined)pinBoostColor=d.pinBoostColor;if(d.pinRingMode!==undefined)pinRingMode=d.pinRingMode;return true;}catch(e){return false;}}
 
 // WAKE LOCK
 var wakeLock=null;
