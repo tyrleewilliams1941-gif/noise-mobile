@@ -48,7 +48,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 #sPlan{display:none;flex-direction:column;overflow:hidden;position:absolute;inset:0;}
 #sPlan.on{display:flex;}
 #nav{height:var(--nh);background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;flex-shrink:0;position:relative;z-index:100;box-shadow:0 -1px 4px rgba(0,0,0,.06);}
-.nav-ind{position:absolute;top:0;left:0;width:20%;height:3px;background:var(--ac);border-radius:0 0 3px 3px;transition:left .2s;}
+
 
 .logo{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);flex:1;}
 .hbtn{width:42px;height:42px;border-radius:var(--rs);background:transparent;color:var(--txd);display:flex;align-items:center;justify-content:center;font-size:20px;}
@@ -630,7 +630,7 @@ function exportReady(){
   }
   drawPlan();toast('Ready — tap ⬇ PDF to export');
 }
-function loadFP(){var floor=gcf();var canvas=document.getElementById('planCanvas');var dz=document.getElementById('dropZone');var zf=document.getElementById('zFab');var leg=document.getElementById('planLeg');var ep=document.getElementById('epBtn');var rm=document.getElementById('rmBtn');planImg=null;if(!floor||!floor.planImage){canvas.style.display='none';dz.style.display='flex';if(zf)zf.style.display='none';if(leg)leg.classList.remove('on');if(ep)ep.style.display='none';if(rm)rm.style.display='none';var er0=document.getElementById('expReadyBtn');if(er0)er0.style.display='none';updDeselBtn();return;}var img=new Image();img.onload=function(){planImg=img;canvas.style.display='block';dz.style.display='none';if(zf)zf.style.display='flex';if(leg)leg.classList.add('on');if(ep)ep.style.display='block';if(rm)rm.style.display='block';var er1=document.getElementById('expReadyBtn');if(er1)er1.style.display='block';updDeselBtn();setTimeout(function(){resizeC();if(canvas.width&&canvas.height)resetView();else setTimeout(resetView,100);},80);};img.onerror=function(){toast('Could not load floor plan',true);floor.planImage=null;};img.src=floor.planImage;}
+function loadFP(){var floor=gcf();var canvas=document.getElementById('planCanvas');var dz=document.getElementById('dropZone');var zf=document.getElementById('zFab');var leg=document.getElementById('planLeg');var ep=document.getElementById('epBtn');var rm=document.getElementById('rmBtn');planImg=null;if(!floor||!floor.planImage){canvas.style.display='none';dz.style.display='flex';if(zf)zf.style.display='none';if(leg)leg.classList.remove('on');if(ep)ep.style.display='none';if(rm)rm.style.display='none';var er0=document.getElementById('expReadyBtn');if(er0)er0.style.display='none';updDeselBtn();return;}var img=new Image();img.crossOrigin='anonymous';img.onload=function(){planImg=img;canvas.style.display='block';dz.style.display='none';if(zf)zf.style.display='flex';if(leg)leg.classList.add('on');if(ep)ep.style.display='block';if(rm)rm.style.display='block';var er1=document.getElementById('expReadyBtn');if(er1)er1.style.display='block';updDeselBtn();setTimeout(function(){resizeC();if(canvas.width&&canvas.height)resetView();else setTimeout(resetView,100);},80);};img.onerror=function(){toast('Could not load floor plan',true);floor.planImage=null;};img.src=floor.planImage;}
 function loadPlan(e){var file=e.target.files[0];if(!file)return;if(file.name&&file.name.toLowerCase().endsWith('.dxf')){var r=new FileReader();r.onload=function(ev){if(curS!==2)goTo(2);setTimeout(function(){loadDXF(ev.target.result);},120);};r.readAsText(file);e.target.value='';return;}if(file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf')){var r=new FileReader();r.onload=function(ev){loadPlanPDF(ev.target.result);};r.readAsArrayBuffer(file);e.target.value='';return;}var r=new FileReader();r.onload=function(ev){snap('import plan');gcf().planImage=ev.target.result;if(curS!==2)goTo(2);setTimeout(function(){loadFP();toast('Floor plan loaded');},120);};r.readAsDataURL(file);e.target.value='';}
 function loadPlanPDF(arrayBuf){toast('Rendering PDF...');var pdfjsLib=window['pdfjs-dist/build/pdf'];if(!pdfjsLib){toast('PDF.js not loaded',true);return;}pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';var typedArr=new Uint8Array(arrayBuf);pdfjsLib.getDocument({data:typedArr}).promise.then(function(pdf){return pdf.getPage(1);}).then(function(page){var scale=2;var vp=page.getViewport({scale:scale});var oc=document.createElement('canvas');oc.width=vp.width;oc.height=vp.height;var ctx=oc.getContext('2d');return page.render({canvasContext:ctx,viewport:vp}).promise.then(function(){var url=oc.toDataURL('image/png');snap('import plan');gcf().planImage=url;if(curS!==2)goTo(2);setTimeout(function(){loadFP();toast('PDF loaded (page 1)');},120);});}).catch(function(err){toast('PDF error: '+err.message,true);});}
 function clearPlan(){if(!gcf()||!gcf().planImage)return;if(!confirm('Remove floor plan?'))return;snap('remove plan');gcf().planImage=null;loadFP();}
@@ -867,7 +867,12 @@ function renderPDFCanvas(ps){
     var tw=ctx.measureText(labelStr).width;
     var ph=lfs*1.7,pw2=tw+lfs,py2=sy-r-ph-r*0.25,px2=sx-pw2/2;
     ctx.fillStyle='rgba(13,17,23,.88)';
-    ctx.beginPath();ctx.roundRect(px2,py2,pw2,ph,lfs*0.35);ctx.fill();
+    ctx.beginPath();
+    var rad=lfs*0.35,rx=px2,ry=py2,rw=pw2,rh=ph;
+    ctx.moveTo(rx+rad,ry);ctx.lineTo(rx+rw-rad,ry);ctx.quadraticCurveTo(rx+rw,ry,rx+rw,ry+rad);
+    ctx.lineTo(rx+rw,ry+rh-rad);ctx.quadraticCurveTo(rx+rw,ry+rh,rx+rw-rad,ry+rh);
+    ctx.lineTo(rx+rad,ry+rh);ctx.quadraticCurveTo(rx,ry+rh,rx,ry+rh-rad);
+    ctx.lineTo(rx,ry+rad);ctx.quadraticCurveTo(rx,ry,rx+rad,ry);ctx.closePath();ctx.fill();
     ctx.fillStyle='rgba(230,237,243,.95)';
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(labelStr,sx,py2+ph/2);
@@ -894,13 +899,15 @@ function prevPS(d){
   var lbl=document.getElementById('prevPSLbl');if(lbl)lbl.textContent=prevPinSize;
   toast('Updating preview...');
   setTimeout(function(){
-    var fc=renderPDFCanvas(prevPinSize);
-    var pc=document.getElementById('pdfPrevCanvas');
-    var maxW=Math.min(1200,window.innerWidth-24);
-    var scale=Math.min(1,maxW/fc.width);
-    pc.width=Math.round(fc.width*scale);
-    pc.height=Math.round(fc.height*scale);
-    pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
+    try{
+      var fc=renderPDFCanvas(prevPinSize);
+      var pc=document.getElementById('pdfPrevCanvas');
+      var maxW=Math.min(1200,window.innerWidth-24);
+      var scale=Math.min(1,maxW/fc.width);
+      pc.width=Math.round(fc.width*scale);
+      pc.height=Math.round(fc.height*scale);
+      pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
+    }catch(e){toast('Preview error: '+e.message,true);console.error(e);}
   },60);
 }
 
@@ -913,6 +920,7 @@ function commitPDF(){
   if(!planImg)return;
   toast('Generating PDF...');
   setTimeout(function(){
+    try{
     var fc=renderPDFCanvas(prevPinSize);
     var pngURL=fc.toDataURL('image/png');
     var jsPDF=window.jspdf?window.jspdf.jsPDF:window.jsPDF;
@@ -932,6 +940,7 @@ function commitPDF(){
     pdf.save(sn+'.pdf');
     closePDFPrev();
     toast('PDF saved');
+    }catch(e){toast('PDF error: '+e.message,true);console.error(e);}
   },80);
 }
 
@@ -948,13 +957,15 @@ function exportPlanPDF(){
   if(!prev||!pc)return;
   toast('Rendering preview...');
   setTimeout(function(){
-    var fc=renderPDFCanvas(prevPinSize);
-    var maxW=Math.min(1200,window.innerWidth-24);
-    var scale=Math.min(1,maxW/fc.width);
-    pc.width=Math.round(fc.width*scale);
-    pc.height=Math.round(fc.height*scale);
-    pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
-    prev.style.display='flex';
+    try{
+      var fc=renderPDFCanvas(prevPinSize);
+      var maxW=Math.min(1200,window.innerWidth-24);
+      var scale=Math.min(1,maxW/fc.width);
+      pc.width=Math.round(fc.width*scale);
+      pc.height=Math.round(fc.height*scale);
+      pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
+      prev.style.display='flex';
+    }catch(e){toast('Preview error: '+e.message,true);console.error(e);}
   },60);
 }
 
@@ -1027,5 +1038,4 @@ if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.
 }
 </script>
 </body>
-</html>
 </html>
