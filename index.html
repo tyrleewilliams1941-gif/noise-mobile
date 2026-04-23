@@ -713,7 +713,7 @@ function drawPlan(){
     var sx=pt.pinX*vS+vX, sy=pt.pinY*vS+vY;
     var isA=pt.id===curPId;
     // radius scales with zoom so pins stay proportional to the plan
-    var r=Math.round(Math.max(6,Math.min(gPS*vS,gPS*4))*(isA?1.35:1));
+    var r=Math.round(Math.max(8,gPS*Math.sqrt(vS))*(isA?1.35:1));
     var fill=dbColor(pt.db);
     var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
     var lc=bright?'#111':'#fff';
@@ -830,42 +830,133 @@ function parseDXFFull(pairs){var ents=[];var i=0;while(i<pairs.length){if(pairs[
 function renderDXFtoURL(ents){var filtered=ents.filter(function(e){return(e.layer||'0').toUpperCase()!=='DEFPOINTS';});if(!filtered.length)return null;var bb={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};function upd(x,y){bb.minX=Math.min(bb.minX,x);bb.minY=Math.min(bb.minY,y);bb.maxX=Math.max(bb.maxX,x);bb.maxY=Math.max(bb.maxY,y);}filtered.forEach(function(e){if(e.type==='LINE'){upd(e.x1||0,e.y1||0);upd(e.x2||0,e.y2||0);}else if(e.type==='LWPOLYLINE'){e.vertices.forEach(function(v){upd(v.x,v.y);});}else if(e.type==='CIRCLE'||e.type==='ARC'){upd((e.x1||0)+(e.r||0),(e.y1||0)+(e.r||0));upd((e.x1||0)-(e.r||0),(e.y1||0)-(e.r||0));}});var pw=bb.maxX-bb.minX,ph2=bb.maxY-bb.minY;if(!pw||!ph2)return null;var pad=40,maxD=4000;var sc=Math.min((maxD-pad*2)/pw,(maxD-pad*2)/ph2);var cw=Math.round(pw*sc+pad*2),ch=Math.round(ph2*sc+pad*2);var c=document.createElement('canvas');c.width=cw;c.height=ch;var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cw,ch);ctx.strokeStyle='#1a2332';ctx.lineWidth=Math.max(0.5,sc*0.01);ctx.lineCap='round';ctx.lineJoin='round';function tx(x){return(x-bb.minX)*sc+pad;}function ty(y){return ch-((y-bb.minY)*sc+pad);}filtered.forEach(function(e){if(e.type==='LINE'){ctx.beginPath();ctx.moveTo(tx(e.x1||0),ty(e.y1||0));ctx.lineTo(tx(e.x2||0),ty(e.y2||0));ctx.stroke();}else if(e.type==='LWPOLYLINE'&&e.vertices.length>1){ctx.beginPath();ctx.moveTo(tx(e.vertices[0].x),ty(e.vertices[0].y));e.vertices.slice(1).forEach(function(v){ctx.lineTo(tx(v.x),ty(v.y));});if(e.closed)ctx.closePath();ctx.stroke();}else if(e.type==='CIRCLE'){ctx.beginPath();ctx.arc(tx(e.x1||0),ty(e.y1||0),(e.r||0)*sc,0,Math.PI*2);ctx.stroke();}else if(e.type==='ARC'){var sa=((e.sa||0))*Math.PI/180,ea=((e.ea||0))*Math.PI/180;ctx.save();ctx.translate(tx(e.x1||0),ty(e.y1||0));ctx.scale(1,-1);ctx.beginPath();ctx.arc(0,0,(e.r||0)*sc,-sa,-ea,true);ctx.restore();ctx.stroke();}});return c.toDataURL('image/png');}
 
 // EXPORTS
+var prevPinSize=null;
+
+function renderPDFCanvas(ps){
+  var floor=gcf();
+  var sc=2;
+  var oc=document.createElement('canvas');
+  oc.width=planImg.width*sc;oc.height=planImg.height*sc;
+  var ctx=oc.getContext('2d');
+  ctx.drawImage(planImg,0,0,oc.width,oc.height);
+  if(floor&&floor.hatchZones)floor.hatchZones.forEach(function(z){
+    if(z.length<3)return;
+    ctx.beginPath();ctx.moveTo(z[0].x*sc,z[0].y*sc);
+    z.slice(1).forEach(function(p){ctx.lineTo(p.x*sc,p.y*sc);});
+    ctx.closePath();ctx.fillStyle='rgba(248,81,73,.18)';ctx.fill();
+    ctx.strokeStyle='rgba(248,81,73,.7)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);
+  });
+  if(floor)floor.points.forEach(function(pt){
+    if(pt.pinX===null)return;
+    var sx=pt.pinX*sc,sy=pt.pinY*sc;
+    var r=Math.max(16*sc,Math.round(Math.min(planImg.width,planImg.height)*0.025*sc*(ps/18)));
+    var fill=dbColor(pt.db);
+    var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
+    ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=r*0.5;ctx.shadowOffsetY=r*0.15;
+    ctx.beginPath();ctx.arc(sx,sy,r+r*0.2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.95)';ctx.fill();
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
+    var fs=Math.round(r*0.7);
+    ctx.font='700 '+fs+'px IBM Plex Sans,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=bright?'#111':'#fff';
+    ctx.fillText(pt.db!==''?pt.db:pid3(pt.id),sx,sy);
+    var labelStr=pid3(pt.id)+(pt.db!==''?' · '+pt.db:'');
+    var lfs=Math.round(r*0.5);
+    ctx.font='600 '+lfs+'px IBM Plex Sans,sans-serif';
+    var tw=ctx.measureText(labelStr).width;
+    var ph=lfs*1.7,pw2=tw+lfs,py2=sy-r-ph-r*0.25,px2=sx-pw2/2;
+    ctx.fillStyle='rgba(13,17,23,.88)';
+    ctx.beginPath();ctx.roundRect(px2,py2,pw2,ph,lfs*0.35);ctx.fill();
+    ctx.fillStyle='rgba(230,237,243,.95)';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(labelStr,sx,py2+ph/2);
+  });
+  var proj=document.getElementById('mProj').value||'Survey';
+  var site=document.getElementById('mSite').value||'';
+  var surv=document.getElementById('mSurv').value||'';
+  var date=new Date().toLocaleDateString('en-GB');
+  var fh=44*sc,fc=document.createElement('canvas');
+  fc.width=oc.width;fc.height=oc.height+fh;
+  var fctx=fc.getContext('2d');
+  fctx.drawImage(oc,0,0);
+  fctx.fillStyle='#1a2332';fctx.fillRect(0,oc.height,fc.width,fh);
+  fctx.fillStyle='#ffffff';fctx.font='600 '+(14*sc)+'px IBM Plex Mono,monospace';
+  fctx.textBaseline='middle';
+  var mid=oc.height+fh/2;
+  var parts=[floor?floor.name:'',proj,site,surv,date].filter(Boolean);
+  fctx.fillText(parts.join(' | '),16*sc,mid);
+  return fc;
+}
+
+function prevPS(d){
+  prevPinSize=Math.max(4,Math.min(40,prevPinSize+d));
+  var lbl=document.getElementById('prevPSLbl');if(lbl)lbl.textContent=prevPinSize;
+  toast('Updating preview...');
+  setTimeout(function(){
+    var fc=renderPDFCanvas(prevPinSize);
+    var pc=document.getElementById('pdfPrevCanvas');
+    var maxW=Math.min(1200,window.innerWidth-24);
+    var scale=Math.min(1,maxW/fc.width);
+    pc.width=Math.round(fc.width*scale);
+    pc.height=Math.round(fc.height*scale);
+    pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
+  },60);
+}
+
+function closePDFPrev(){
+  var prev=document.getElementById('pdfPrev');
+  if(prev)prev.style.display='none';
+}
+
+function commitPDF(){
+  if(!planImg)return;
+  toast('Generating PDF...');
+  setTimeout(function(){
+    var fc=renderPDFCanvas(prevPinSize);
+    var pngURL=fc.toDataURL('image/png');
+    var jsPDF=window.jspdf?window.jspdf.jsPDF:window.jsPDF;
+    if(!jsPDF){toast('jsPDF not loaded',true);return;}
+    var land=fc.width>=fc.height;
+    var pdf=new jsPDF({orientation:land?'landscape':'portrait',unit:'mm',format:'a4'});
+    var pw=pdf.internal.pageSize.getWidth(),ph2=pdf.internal.pageSize.getHeight();
+    var marg=10,aw=pw-marg*2,ah=ph2-marg*2;
+    var ir=fc.width/fc.height,ar=aw/ah;
+    var fw,fh2;
+    if(ir>ar){fw=aw;fh2=aw/ir;}else{fh2=ah;fw=ah*ir;}
+    pdf.addImage(pngURL,'PNG',marg+(aw-fw)/2,marg+(ah-fh2)/2,fw,fh2);
+    var floor=gcf();
+    var proj=document.getElementById('mProj').value||'Survey';
+    var date=new Date().toLocaleDateString('en-GB');
+    var sn=(proj+'-'+(floor?floor.name:'')+'-'+date).replace(/[^a-z0-9]/gi,'_');
+    pdf.save(sn+'.pdf');
+    closePDFPrev();
+    toast('PDF saved');
+  },80);
+}
+
 function dl(data,name,type){var b=new Blob([data],{type:type});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
 function exportCSV(){var proj=document.getElementById('mProj').value||'Survey';var rows=[['Floor','Point ID','LAeq dB(A)','Peak dB(C)','Location','Notes','Timestamp']];floors.forEach(function(f){f.points.forEach(function(p){rows.push([f.name,pid3(p.id),p.db,p.peak,p.location,p.notes||'',p.timestamp||'']);});});dl(rows.map(function(r){return r.map(function(c){return'"'+(String(c||'').replace(/"/g,'""'))+'"';}).join(',');}).join('\n'),proj+'_points.csv','text/csv');}
 function exportDoseCSV(){var proj=document.getElementById('mProj').value||'Survey';var rows=[['Worker','Name','Job Title','Hours','LEP,d dB(A)','LC,peak dB(C)','HP Type','HP Rating','Level','Notes']];doseData.forEach(function(w){rows.push([w.slot,w.name,w.title,w.hoursWork,w.laeqd,w.lcpeak,w.hpType,w.hpRating,dlbl(dlvl(w.laeqd)),w.notes]);});dl(rows.map(function(r){return r.map(function(c){return'"'+(String(c||'').replace(/"/g,'""'))+'"';}).join(',');}).join('\n'),proj+'_dose.csv','text/csv');}
 function exportLog(){var proj=document.getElementById('mProj').value||'Survey';var site=document.getElementById('mSite').value;var surv=document.getElementById('mSurv').value;var date=new Date().toLocaleDateString('en-GB');var lines=['NOISE SURVEY LOG','================','Project: '+proj,'Site: '+(site||'-'),'Surveyor: '+(surv||'-'),'Date: '+date,''];floors.forEach(function(f){lines.push('\nFLOOR: '+f.name);lines.push('-'.repeat(40));f.points.forEach(function(p){lines.push(pid3(p.id)+' | '+p.db+' dB(A) | '+p.peak+' dB(C) | '+(p.location||'-')+(p.notes?' | '+p.notes:''));});var comp=f.points.filter(function(p){return p.db!=='';});if(comp.length){var dbs=comp.map(function(p){return parseFloat(p.db);});lines.push('\nMax: '+Math.max.apply(null,dbs).toFixed(1)+' | Avg: '+(dbs.reduce(function(a,b){return a+b;},0)/dbs.length).toFixed(1)+' | Points: '+f.points.length);}});dl(lines.join('\n'),proj+'_log.txt','text/plain');}
-function exportPlanPDF(){if(!planImg){toast('No floor plan loaded',true);return;}var floor=gcf();var proj=document.getElementById('mProj').value||'Survey';var site=document.getElementById('mSite').value||'';var surv=document.getElementById('mSurv').value||'';var date=new Date().toLocaleDateString('en-GB');var sc=2,oc=document.createElement('canvas');oc.width=planImg.width*sc;oc.height=planImg.height*sc;var ctx=oc.getContext('2d');ctx.drawImage(planImg,0,0,oc.width,oc.height);if(floor&&floor.hatchZones)floor.hatchZones.forEach(function(z){if(z.length<3)return;ctx.beginPath();ctx.moveTo(z[0].x*sc,z[0].y*sc);z.slice(1).forEach(function(p){ctx.lineTo(p.x*sc,p.y*sc);});ctx.closePath();ctx.fillStyle='rgba(248,81,73,.18)';ctx.fill();ctx.strokeStyle='rgba(248,81,73,.7)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);});if(floor)floor.points.forEach(function(pt){
-  if(pt.pinX===null)return;
-  var sx=pt.pinX*sc,sy=pt.pinY*sc;
-  // Pin radius: 2.5% of shorter plan dimension × sc, scaled by user pin size setting
-  // This makes pins always visible regardless of whether the plan is a tiny sketch or a 12MP phone photo
-  var r=Math.max(16*sc, Math.round(Math.min(planImg.width,planImg.height)*0.025*sc*(gPS/18)));
-  var fill=dbColor(pt.db);
-  var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
-  var lc=bright?'#111':'#fff';
-  // shadow + white ring
-  ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=r*0.5;ctx.shadowOffsetY=r*0.15;
-  ctx.beginPath();ctx.arc(sx,sy,r+r*0.2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.95)';ctx.fill();
-  ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-  // colour fill
-  ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
-  // label inside pin
-  var fs=Math.round(r*0.7);
-  ctx.font='700 '+fs+'px IBM Plex Sans,sans-serif';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillStyle=lc;ctx.fillText(pt.db!==''?pt.db:pid3(pt.id),sx,sy);
-  // pill label above
-  var labelStr=pid3(pt.id)+(pt.db!==''?' · '+pt.db:'');
-  var lfs=Math.round(r*0.5);
-  ctx.font='600 '+lfs+'px IBM Plex Sans,sans-serif';
-  var tw=ctx.measureText(labelStr).width;
-  var ph=lfs*1.7,pw2=tw+lfs,py2=sy-r-ph-r*0.25,px2=sx-pw2/2;
-  ctx.fillStyle='rgba(13,17,23,.88)';
-  ctx.beginPath();ctx.roundRect(px2,py2,pw2,ph,lfs*0.35);ctx.fill();
-  ctx.fillStyle='rgba(230,237,243,.95)';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(labelStr,sx,py2+ph/2);
-});var fh=44*sc,fc=document.createElement('canvas');fc.width=oc.width;fc.height=oc.height+fh;var fctx=fc.getContext('2d');fctx.drawImage(oc,0,0);fctx.fillStyle='#1a2332';fctx.fillRect(0,oc.height,fc.width,fh);fctx.fillStyle='#ffffff';fctx.font='600 '+(14*sc)+'px IBM Plex Mono,monospace';fctx.textBaseline='middle';var mid=oc.height+fh/2;var parts=[floor?floor.name:'',proj,site,surv,date].filter(Boolean);fctx.fillText(parts.join(' | '),16*sc,mid);var pngURL=fc.toDataURL('image/png');var jsPDF=window.jspdf?window.jspdf.jsPDF:window.jsPDF;if(!jsPDF){toast('jsPDF not loaded',true);return;}var land=fc.width>=fc.height;var pdf=new jsPDF({orientation:land?'landscape':'portrait',unit:'mm',format:'a4'});var pw=pdf.internal.pageSize.getWidth(),ph2=pdf.internal.pageSize.getHeight();var marg=10,aw=pw-marg*2,ah=ph2-marg*2;var ir=fc.width/fc.height,ar=aw/ah;var fw,fh2;if(ir>ar){fw=aw;fh2=aw/ir;}else{fh2=ah;fw=ah*ir;}pdf.addImage(pngURL,'PNG',marg+(aw-fw)/2,marg+(ah-fh2)/2,fw,fh2);var sn=(proj+'-'+(floor?floor.name:'')+'-'+date).replace(/[^a-z0-9]/gi,'_');pdf.save(sn+'.pdf');}
+function exportPlanPDF(){
+  if(!planImg){toast('No floor plan loaded',true);return;}
+  prevPinSize=gPS;
+  var lbl=document.getElementById('prevPSLbl');if(lbl)lbl.textContent=prevPinSize;
+  var prev=document.getElementById('pdfPrev');
+  var pc=document.getElementById('pdfPrevCanvas');
+  if(!prev||!pc)return;
+  toast('Rendering preview...');
+  setTimeout(function(){
+    var fc=renderPDFCanvas(prevPinSize);
+    var maxW=Math.min(1200,window.innerWidth-24);
+    var scale=Math.min(1,maxW/fc.width);
+    pc.width=Math.round(fc.width*scale);
+    pc.height=Math.round(fc.height*scale);
+    pc.getContext('2d').drawImage(fc,0,0,pc.width,pc.height);
+    prev.style.display='flex';
+  },60);
+}
 
 // SESSION
 function saveSession(){var proj=document.getElementById('mProj').value;var site=document.getElementById('mSite').value;var surv=document.getElementById('mSurv').value;var imgs={};floors.forEach(function(f){if(f.planImage)imgs[f.id]=f.planImage;});var data={v:2,proj:proj,site:site,surv:surv,floors:floors.map(function(f){return Object.assign({},f,{planImage:null,points:f.points.map(function(p){return Object.assign({},p,{photos:p.photos?p.photos.map(function(ph){return Object.assign({},ph);}):[]});})});}),imgs:imgs,dose:doseData,fIdC:fIdC,pIdC:pIdC,curFId:curFId};dl(JSON.stringify(data,null,2),(proj||'survey')+'_session.json','application/json');}
@@ -904,6 +995,27 @@ window.addEventListener('load',function(){
 
 
 </script>
+
+<!-- PDF PREVIEW OVERLAY -->
+<div id="pdfPrev" style="display:none;position:fixed;inset:0;background:#1a1a2e;z-index:2000;flex-direction:column;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(0,0,0,.5);flex-shrink:0;gap:12px;">
+    <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:#fff;letter-spacing:.06em">PDF PREVIEW</span>
+    <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:center;">
+      <span style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.5)">Pin size</span>
+      <button onclick="prevPS(-2)" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">−</button>
+      <span id="prevPSLbl" style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ac);min-width:24px;text-align:center">18</span>
+      <button onclick="prevPS(2)" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">+</button>
+    </div>
+    <button onclick="closePDFPrev()" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-family:var(--mono);font-size:13px;padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0">✕ Close</button>
+  </div>
+  <div style="flex:1;overflow:auto;position:relative;display:flex;align-items:center;justify-content:center;padding:12px;">
+    <canvas id="pdfPrevCanvas" style="max-width:100%;max-height:100%;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.8);"></canvas>
+  </div>
+  <div style="padding:14px 16px;background:rgba(0,0,0,.5);display:flex;gap:10px;flex-shrink:0;">
+    <button onclick="closePDFPrev()" style="flex:1;padding:15px;border-radius:12px;background:rgba(255,255,255,.1);border:none;color:#fff;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;">Cancel</button>
+    <button onclick="commitPDF()" style="flex:2;padding:15px;border-radius:12px;background:var(--ac2);border:none;color:#fff;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;">⬇ Save PDF</button>
+  </div>
+</div>
 
 <script>
 if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com'){
