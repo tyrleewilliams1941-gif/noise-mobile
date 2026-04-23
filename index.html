@@ -192,7 +192,7 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 #toast.err{border-color:var(--danger);color:var(--danger);}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
 .overlay.on{opacity:1;pointer-events:all;}
-.sheet{background:var(--sf);border-radius:var(--r) var(--r) 0 0;width:100%;padding:20px 20px 44px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,1.15,.5,1);}
+.sheet{background:var(--sf);border-radius:var(--r) var(--r) 0 0;width:100%;padding:20px 20px 44px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,1.15,.5,1);max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .overlay.on .sheet{transform:translateY(0);}
 .sh-handle{width:40px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 18px;}
 .sh-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx);margin-bottom:18px;}
@@ -392,18 +392,13 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:13px;color:var(--tx)">Show Pin Labels</span><button id="lblTogBtn" onclick="togPinLabel()" style="font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);padding:8px 16px;border-radius:var(--rs);cursor:pointer;touch-action:manipulation">On</button></div>
 <div><div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:10px">Pin face shows</div><div style="display:flex;gap:8px"><button class="pin-disp-btn on" data-v="db" onclick="setPinDisplay('db')">dB only</button><button class="pin-disp-btn" data-v="id" onclick="setPinDisplay('id')">ID only</button><button class="pin-disp-btn" data-v="both" onclick="setPinDisplay('both')">ID + dB</button></div></div>
 <div style="border-top:1px solid var(--bd);padding-top:16px">
-  <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:12px">Pin Clarity (small pins)</div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Threshold rendering</span><button id="btnPinThresh" onclick="togPinOpt('pinThreshold','btnPinThresh')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">On</button></div>
-    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Dot → ID only → full detail based on size</div>
-    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Hard outline</span><button id="btnPinHardOutline" onclick="togPinOpt('pinHardOutline','btnPinHardOutline')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">On</button></div>
-    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Black stroke instead of white shadow ring</div>
-    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Auto-hide labels</span><button id="btnPinAutoHide" onclick="togPinOpt('pinAutoHideLabel','btnPinAutoHide')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">On</button></div>
-    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Hide pill labels when pins are too small</div>
-    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Boost colours</span><button id="btnPinBoost" onclick="togPinOpt('pinBoostColor','btnPinBoost')" style="font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--txd);border:1px solid var(--bd);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">Off</button></div>
-    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Punchier green / amber / red colours</div>
-    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Ring-only (tiny)</span><button id="btnPinRing" onclick="togPinOpt('pinRingMode','btnPinRing')" style="font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--txd);border:1px solid var(--bd);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px">Off</button></div>
-    <div style="font-size:11px;color:var(--txd);margin-top:-6px;padding-left:2px">Hollow ring instead of filled dot at minimum size</div>
+  <div style="font-family:var(--mono);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--txd);margin-bottom:12px">Pin Clarity</div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Threshold rendering</span><button id="btnPinThresh" onclick="togPinOpt('pinThreshold','btnPinThresh')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px;flex-shrink:0">On</button></div><div style="font-size:11px;color:var(--txd)">Dot → ID → full detail by size</div></div>
+    <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Hard outline</span><button id="btnPinHardOutline" onclick="togPinOpt('pinHardOutline','btnPinHardOutline')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px;flex-shrink:0">On</button></div><div style="font-size:11px;color:var(--txd)">Black stroke, visible on busy plans</div></div>
+    <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Auto-hide labels</span><button id="btnPinAutoHide" onclick="togPinOpt('pinAutoHideLabel','btnPinAutoHide')" style="font-family:var(--mono);font-size:11px;background:var(--acd);color:var(--ac);border:1px solid var(--ac);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px;flex-shrink:0">On</button></div><div style="font-size:11px;color:var(--txd)">Hide pill labels when pins are small</div></div>
+    <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Boost colours</span><button id="btnPinBoost" onclick="togPinOpt('pinBoostColor','btnPinBoost')" style="font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--txd);border:1px solid var(--bd);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px;flex-shrink:0">Off</button></div><div style="font-size:11px;color:var(--txd)">Punchier green / amber / red</div></div>
+    <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span style="font-family:var(--mono);font-size:12px;color:var(--tx)">Ring-only mode</span><button id="btnPinRing" onclick="togPinOpt('pinRingMode','btnPinRing')" style="font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--txd);border:1px solid var(--bd);padding:6px 14px;border-radius:var(--rs);cursor:pointer;min-width:44px;flex-shrink:0">Off</button></div><div style="font-size:11px;color:var(--txd)">Hollow ring at minimum pin size</div></div>
   </div>
 </div>
 </div><div style="margin-top:20px"><button class="btn btn-s full" onclick="closeSheet('settSheet')">Done</button></div></div></div>
@@ -700,15 +695,16 @@ function togPinOpt(varName,btnId){
   else if(varName==='pinAutoHideLabel')pinAutoHideLabel=!pinAutoHideLabel;
   else if(varName==='pinBoostColor')pinBoostColor=!pinBoostColor;
   else if(varName==='pinRingMode')pinRingMode=!pinRingMode;
-  var val=(varName==='pinThreshold'?pinThreshold:varName==='pinHardOutline'?pinHardOutline:varName==='pinAutoHideLabel'?pinAutoHideLabel:varName==='pinBoostColor'?pinBoostColor:pinRingMode);
+  var vals={pinThreshold:pinThreshold,pinHardOutline:pinHardOutline,pinAutoHideLabel:pinAutoHideLabel,pinBoostColor:pinBoostColor,pinRingMode:pinRingMode};
+  var v=vals[varName];
   var btn=document.getElementById(btnId);
-  if(btn){btn.textContent=val?'On':'Off';btn.style.background=val?'var(--acd)':'var(--sf2)';btn.style.color=val?'var(--ac)':'var(--txd)';btn.style.borderColor=val?'var(--ac)':'var(--bd)';}
+  if(btn){btn.textContent=v?'On':'Off';btn.style.background=v?'var(--acd)':'var(--sf2)';btn.style.color=v?'var(--ac)':'var(--txd)';btn.style.borderColor=v?'var(--ac)':'var(--bd)';}
   drawPlan();
 }
 function syncPinOptBtns(){
-  var opts=[['pinThreshold','btnPinThresh'],['pinHardOutline','btnPinHardOutline'],['pinAutoHideLabel','btnPinAutoHide'],['pinBoostColor','btnPinBoost'],['pinRingMode','btnPinRing']];
+  var map=[['pinThreshold','btnPinThresh'],['pinHardOutline','btnPinHardOutline'],['pinAutoHideLabel','btnPinAutoHide'],['pinBoostColor','btnPinBoost'],['pinRingMode','btnPinRing']];
   var vals={pinThreshold:pinThreshold,pinHardOutline:pinHardOutline,pinAutoHideLabel:pinAutoHideLabel,pinBoostColor:pinBoostColor,pinRingMode:pinRingMode};
-  opts.forEach(function(o){var btn=document.getElementById(o[1]);if(!btn)return;var v=vals[o[0]];btn.textContent=v?'On':'Off';btn.style.background=v?'var(--acd)':'var(--sf2)';btn.style.color=v?'var(--ac)':'var(--txd)';btn.style.borderColor=v?'var(--ac)':'var(--bd)';});
+  map.forEach(function(o){var btn=document.getElementById(o[1]);if(!btn)return;var v=vals[o[0]];btn.textContent=v?'On':'Off';btn.style.background=v?'var(--acd)':'var(--sf2)';btn.style.color=v?'var(--ac)':'var(--txd)';btn.style.borderColor=v?'var(--ac)':'var(--bd)';});
 }
 function togPinLabel(){
   showPinLabel=!showPinLabel;
@@ -729,12 +725,7 @@ function clearLastHatch(){var f=gcf();if(!f||!f.hatchZones||!f.hatchZones.length
 function dbColor(db){
   if(db===''||isNaN(parseFloat(db)))return'#aaaaaa';
   var v=parseFloat(db);
-  if(pinBoostColor){
-    if(v<75)return'#999999';
-    if(v<80)return'#7ec850';
-    if(v<85)return'#f59b20';
-    return'#e8221a';
-  }
+  if(pinBoostColor){if(v<75)return'#999999';if(v<80)return'#7ec850';if(v<85)return'#f59b20';return'#e8221a';}
   if(v<75)return'#aaaaaa';if(v<80)return'#a6d96a';if(v<85)return'#fdae61';return'#d73027';
 }
 function rrect(ctx,x,y,w,h,rad){ctx.beginPath();ctx.moveTo(x+rad,y);ctx.lineTo(x+w-rad,y);ctx.quadraticCurveTo(x+w,y,x+w,y+rad);ctx.lineTo(x+w,y+h-rad);ctx.quadraticCurveTo(x+w,y+h,x+w-rad,y+h);ctx.lineTo(x+rad,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-rad);ctx.lineTo(x,y+rad);ctx.quadraticCurveTo(x,y,x+rad,y);ctx.closePath();}
@@ -760,65 +751,32 @@ function drawPlan(){
     var fill=dbColor(pt.db);
     var bright=(fill==='#a6d96a'||fill==='#fdae61'||fill==='#aaaaaa');
     var lc=bright?'#111':'#fff';
-    // determine tier based on threshold setting
-    var tier = 'full';
-    if(pinThreshold){
-      if(r < 10) tier='dot';
-      else if(r < 16) tier='mid';
-    }
-
-    // outline style
-    var outlineW = pinHardOutline ? Math.max(2, r*0.18) : 3;
-    var outlineC = pinHardOutline ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,.95)';
-    var outlineR = pinHardOutline ? 0 : 3;
-
-    if(!pinHardOutline){
-      ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;
-    }
-
-    if(tier==='dot'){
-      // ring-only or solid dot
-      if(pinRingMode){
-        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);
-        ctx.strokeStyle=fill;ctx.lineWidth=Math.max(2.5,r*0.5);ctx.stroke();
-        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);
-        ctx.strokeStyle='rgba(0,0,0,0.6)';ctx.lineWidth=Math.max(1,r*0.15);ctx.stroke();
-      } else {
-        ctx.beginPath();ctx.arc(sx,sy,r+outlineR,0,Math.PI*2);ctx.fillStyle=outlineC;ctx.fill();
-        ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
-        if(pinHardOutline){ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.strokeStyle=outlineC;ctx.lineWidth=outlineW;ctx.stroke();}
-      }
+    var tier='full';
+    if(pinThreshold){if(r<10)tier='dot';else if(r<16)tier='mid';}
+    var outlineW=pinHardOutline?Math.max(2,r*0.18):3;
+    var outlineC=pinHardOutline?'rgba(0,0,0,0.85)':'rgba(255,255,255,.95)';
+    if(!pinHardOutline){ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;}
+    if(tier==='dot'&&pinRingMode){
+      ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.strokeStyle=fill;ctx.lineWidth=Math.max(2.5,r*0.5);ctx.stroke();
+      ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,0.6)';ctx.lineWidth=Math.max(1,r*0.15);ctx.stroke();
     } else {
-      // white ring or hard outline
-      ctx.beginPath();ctx.arc(sx,sy,r+(pinHardOutline?0:3),0,Math.PI*2);
-      if(pinHardOutline){ctx.strokeStyle=outlineC;ctx.lineWidth=outlineW;ctx.stroke();}
-      else{ctx.fillStyle=outlineC;ctx.fill();}
+      if(pinHardOutline){ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.strokeStyle=outlineC;ctx.lineWidth=outlineW;ctx.stroke();}
+      else{ctx.beginPath();ctx.arc(sx,sy,r+3,0,Math.PI*2);ctx.fillStyle=outlineC;ctx.fill();}
       ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-
-      if(pinRingMode&&tier==='dot'){
-        // already handled above
-      } else if(pinRingMode){
-        // ring-only: draw empty circle with thick coloured stroke
-        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);
-        ctx.strokeStyle=fill;ctx.lineWidth=Math.max(3,r*0.4);ctx.stroke();
+      if(pinRingMode&&tier!=='full'){
+        ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.strokeStyle=fill;ctx.lineWidth=Math.max(3,r*0.4);ctx.stroke();
       } else {
         ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
       }
     }
-
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
     if(isA){ctx.beginPath();ctx.arc(sx,sy,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2.5;ctx.stroke();}
-
-    // text rendering based on tier
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
     if(tier==='full'||tier==='mid'){
       if(tier==='full'&&pinDisplay==='both'&&r>=14){
-        var idStr=pid3(pt.id);
-        var dbStr=pt.db!==''?pt.db:'--';
-        var fsId=Math.max(7,Math.min(r*0.38,11));
-        var fsDb=Math.max(8,Math.min(r*0.52,16));
-        var gap=r*0.12;
-        var midY=sy+gap*0.5;
+        var idStr=pid3(pt.id),dbStr=pt.db!==''?pt.db:'--';
+        var fsId=Math.max(7,Math.min(r*0.38,11)),fsDb=Math.max(8,Math.min(r*0.52,16));
+        var gap=r*0.12,midY=sy+gap*0.5;
         ctx.font='700 '+fsDb+'px "IBM Plex Sans",sans-serif';
         ctx.lineWidth=Math.max(1.5,fsDb*0.14);ctx.strokeStyle='rgba(0,0,0,.5)';
         ctx.strokeText(dbStr,sx,midY+fsId*0.6+gap);ctx.fillStyle=lc;ctx.fillText(dbStr,sx,midY+fsId*0.6+gap);
@@ -833,9 +791,7 @@ function drawPlan(){
         ctx.strokeText(faceStr,sx,sy);ctx.fillStyle=lc;ctx.fillText(faceStr,sx,sy);
       }
     }
-
-    // pill label: hide when small if autoHideLabel is on
-    var showLabel = showPinLabel && !(pinAutoHideLabel && r < 14);
+    var showLabel=showPinLabel&&!(pinAutoHideLabel&&r<14);
     if(showLabel){
       var labelStr=pid3(pt.id)+(pt.db!==''?' · '+pt.db:'');
       var lfs=Math.max(9,Math.min(12,Math.round(9.5*Math.min(vS,1.8))));
